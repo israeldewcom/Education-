@@ -1,0 +1,2924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DGEI — Digital Global Education Infrastructure</title>
+<meta name="description" content="Africa's leading multi-tenant education platform">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DGEI v2 — DESIGN TOKENS
+═══════════════════════════════════════════════════════════════ */
+:root {
+  /* Core palette */
+  --ink:        #07090F;
+  --ink-2:      #0D1117;
+  --ink-3:      #131B2B;
+  --ink-4:      #1A2438;
+  --ink-5:      #232F45;
+  --rim:        rgba(99,120,200,0.14);
+  --rim-bright: rgba(99,120,200,0.28);
+  --rim-pop:    rgba(99,120,200,0.55);
+
+  /* Brand */
+  --royal:      #5B6CF9;
+  --royal-2:    #7B89FF;
+  --royal-dim:  rgba(91,108,249,0.18);
+  --aqua:       #00D4C8;
+  --aqua-dim:   rgba(0,212,200,0.14);
+  --amber:      #FFB547;
+  --amber-dim:  rgba(255,181,71,0.14);
+  --emerald:    #22D87A;
+  --emerald-dim:rgba(34,216,122,0.14);
+  --crimson:    #FF4D6A;
+  --crimson-dim:rgba(255,77,106,0.14);
+
+  /* Text */
+  --t1: #F0F4FF;
+  --t2: #8E9BB8;
+  --t3: #4E5A78;
+  --t4: #2E3A56;
+
+  /* UI */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+  --sidebar-w: 256px;
+  --topbar-h: 60px;
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 6px 32px rgba(0,0,0,0.45);
+  --shadow-lg: 0 16px 60px rgba(0,0,0,0.6);
+  --shadow-royal: 0 8px 32px rgba(91,108,249,0.35);
+  --ease: cubic-bezier(0.4,0,0.2,1);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+
+  /* Fonts */
+  --f-display: 'Clash Display', sans-serif;
+  --f-body:    'Cabinet Grotesk', sans-serif;
+  --f-mono:    'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden;font-size:15px}
+body{
+  font-family:var(--f-body);
+  background:var(--ink);
+  color:var(--t1);
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+button{font-family:var(--f-body);cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:var(--f-body)}
+h1,h2,h3,h4,h5{font-family:var(--f-display);line-height:1.15;letter-spacing:-0.02em}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--rim-bright);border-radius:2px}
+
+/* ═══════════════════════════════════════════════════════════════
+   AMBIENT BACKGROUND SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.ambient{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.ambient-orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.6;
+}
+.orb-a{width:700px;height:700px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(91,108,249,0.18),transparent 70%);animation:driftA 20s ease-in-out infinite;}
+.orb-b{width:600px;height:600px;bottom:-150px;right:-150px;background:radial-gradient(circle,rgba(0,212,200,0.12),transparent 70%);animation:driftB 25s ease-in-out infinite;}
+.orb-c{width:400px;height:400px;top:40%;left:40%;background:radial-gradient(circle,rgba(255,181,71,0.06),transparent 70%);animation:driftC 18s ease-in-out infinite;}
+@keyframes driftA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.08)}}
+@keyframes driftB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,40px) scale(1.1)}}
+@keyframes driftC{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+
+/* Scanline texture */
+.scanlines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.025;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,1) 2px,rgba(255,255,255,1) 3px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SPA ROUTER — PAGE SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.page{
+  display:none;
+  position:relative;z-index:1;
+  min-height:100vh;
+}
+.page.active{
+  display:block;
+  animation:pageIn 0.38s var(--ease) both;
+}
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.app-page{
+  display:none;
+  position:relative;z-index:1;
+}
+.app-page.active{
+  display:flex;
+  min-height:100vh;
+  animation:pageIn 0.3s var(--ease) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLASS SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.glass{
+  background:rgba(13,17,23,0.75);
+  border:1px solid var(--rim);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+}
+.glass-bright{
+  background:rgba(19,27,43,0.88);
+  border:1px solid var(--rim-bright);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.card{
+  background:var(--ink-3);
+  border:1px solid var(--rim);
+  border-radius:var(--radius-lg);
+  transition:border-color 0.25s var(--ease),box-shadow 0.25s var(--ease),transform 0.25s var(--ease);
+}
+.card-hover:hover{
+  border-color:var(--rim-bright);
+  box-shadow:var(--shadow-md);
+  transform:translateY(-3px);
+}
+.card-royal:hover{
+  border-color:rgba(91,108,249,0.4);
+  box-shadow:0 8px 40px rgba(91,108,249,0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BUTTON SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 22px;border-radius:var(--radius-sm);
+  font-family:var(--f-display);font-weight:600;font-size:14px;
+  transition:all 0.22s var(--ease);cursor:pointer;border:none;
+  white-space:nowrap;position:relative;overflow:hidden;
+}
+.btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);
+  opacity:0;transition:opacity 0.2s;
+}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(0.97)}
+
+.btn-royal{
+  background:linear-gradient(135deg,var(--royal),#8B96FF);
+  color:#fff;box-shadow:0 4px 20px rgba(91,108,249,0.3);
+}
+.btn-royal:hover{box-shadow:var(--shadow-royal);transform:translateY(-1px)}
+
+.btn-aqua{
+  background:linear-gradient(135deg,#00B8AD,var(--aqua));
+  color:#000;box-shadow:0 4px 20px rgba(0,212,200,0.25);
+}
+.btn-aqua:hover{box-shadow:0 8px 32px rgba(0,212,200,0.4);transform:translateY(-1px)}
+
+.btn-ghost{
+  background:transparent;color:var(--t2);
+  border:1px solid var(--rim);padding:9px 20px;
+}
+.btn-ghost:hover{background:var(--ink-4);color:var(--t1);border-color:var(--rim-bright)}
+
+.btn-danger{
+  background:linear-gradient(135deg,#D93657,var(--crimson));
+  color:#fff;
+}
+
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:var(--radius-xs)}
+.btn-lg{padding:14px 32px;font-size:16px;border-radius:var(--radius-md)}
+.btn-xl{padding:17px 40px;font-size:17px;border-radius:var(--radius-md)}
+.btn-icon{width:36px;height:36px;padding:0;border-radius:var(--radius-sm);flex-shrink:0}
+.btn-loading{opacity:0.7;pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════════
+   FORM SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.field{margin-bottom:18px}
+.field label{
+  display:block;font-size:12px;font-weight:700;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--t3);margin-bottom:7px;
+}
+.input{
+  width:100%;background:var(--ink-4);
+  border:1px solid var(--rim);border-radius:var(--radius-sm);
+  padding:11px 14px;color:var(--t1);
+  font-family:var(--f-body);font-size:14px;
+  outline:none;transition:all 0.2s var(--ease);
+  -webkit-appearance:none;appearance:none;
+}
+.input:focus{border-color:var(--royal);background:rgba(91,108,249,0.06);box-shadow:0 0 0 3px rgba(91,108,249,0.15)}
+.input::placeholder{color:var(--t4)}
+.input.error{border-color:var(--crimson);box-shadow:0 0 0 3px var(--crimson-dim)}
+.input-wrap{position:relative}
+.input-wrap .input{padding-left:42px}
+.input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:14px;pointer-events:none}
+.input-action{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--t3);cursor:pointer;transition:color 0.2s}
+.input-action:hover{color:var(--t1)}
+.field-error{font-size:12px;color:var(--crimson);margin-top:5px;display:none}
+.field.has-error .field-error{display:block}
+.field.has-error .input{border-color:var(--crimson)}
+select.input{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234E5A78'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:38px;cursor:pointer;
+}
+select.input option{background:var(--ink-3)}
+textarea.input{resize:vertical;min-height:90px;line-height:1.6}
+
+/* ═══════════════════════════════════════════════════════════════
+   BADGE / STATUS SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:var(--radius-full);
+  font-size:11px;font-weight:700;letter-spacing:0.04em;
+}
+.badge-royal{background:var(--royal-dim);color:var(--royal-2)}
+.badge-aqua{background:var(--aqua-dim);color:var(--aqua)}
+.badge-emerald{background:var(--emerald-dim);color:var(--emerald)}
+.badge-crimson{background:var(--crimson-dim);color:var(--crimson)}
+.badge-amber{background:var(--amber-dim);color:var(--amber)}
+.badge-muted{background:var(--ink-5);color:var(--t2)}
+.dot-live{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)}}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════════════════════ */
+.progress-track{height:5px;background:var(--ink-5);border-radius:3px;overflow:hidden}
+.progress-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--royal),var(--aqua));
+  transition:width 1.2s var(--ease);
+}
+.progress-fill.success{background:linear-gradient(90deg,var(--emerald),var(--aqua))}
+
+/* ═══════════════════════════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════════════════════════ */
+.divider{
+  display:flex;align-items:center;gap:12px;margin:20px 0;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rim)}
+.divider span{font-size:12px;color:var(--t3);white-space:nowrap}
+
+/* ═══════════════════════════════════════════════════════════════
+   SKELETON LOADER
+═══════════════════════════════════════════════════════════════ */
+.skel{
+  background:linear-gradient(90deg,var(--ink-4) 25%,var(--ink-5) 50%,var(--ink-4) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.6s infinite;
+  border-radius:var(--radius-sm);
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST SYSTEM
+═══════════════════════════════════════════════════════════════ */
+#toast-root{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  display:flex;flex-direction:column;gap:10px;
+  pointer-events:none;
+}
+.toast{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--ink-3);border:1px solid var(--rim-bright);
+  border-radius:var(--radius-md);padding:14px 18px;
+  min-width:300px;max-width:380px;
+  box-shadow:var(--shadow-lg);
+  pointer-events:all;
+  animation:toastIn 0.35s var(--spring) both;
+}
+.toast.out{animation:toastOut 0.3s var(--ease) both}
+.toast-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.toast-body{flex:1}
+.toast-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.toast-msg{font-size:12px;color:var(--t2);line-height:1.5}
+.toast-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;margin-left:4px;transition:color 0.2s;padding:0}
+.toast-close:hover{color:var(--t1)}
+.toast.royal{border-left:3px solid var(--royal)}
+.toast.royal .toast-icon{color:var(--royal-2)}
+.toast.success{border-left:3px solid var(--emerald)}
+.toast.success .toast-icon{color:var(--emerald)}
+.toast.error{border-left:3px solid var(--crimson)}
+.toast.error .toast-icon{color:var(--crimson)}
+.toast.warning{border-left:3px solid var(--amber)}
+.toast.warning .toast-icon{color:var(--amber)}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px) scale(0.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(30px)}}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL SYSTEM
+═══════════════════════════════════════════════════════════════ */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:3000;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease);
+}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--ink-3);border:1px solid var(--rim-bright);
+  border-radius:var(--radius-xl);width:100%;max-width:500px;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(20px) scale(0.97);
+  transition:transform 0.3s var(--spring);
+  overflow:hidden;
+}
+.modal-backdrop.open .modal{transform:translateY(0) scale(1)}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 28px 0;
+}
+.modal-header h3{font-size:20px}
+.modal-close-btn{
+  width:32px;height:32px;border-radius:var(--radius-xs);
+  background:var(--ink-4);border:none;color:var(--t2);
+  font-size:16px;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close-btn:hover{background:var(--ink-5);color:var(--t1)}
+.modal-body{padding:20px 28px}
+.modal-footer{padding:0 28px 24px;display:flex;gap:10px;justify-content:flex-end}
+
+/* ═══════════════════════════════════════════════════════════════
+   DROPDOWN
+═══════════════════════════════════════════════════════════════ */
+.dropdown{position:relative}
+.dropdown-menu{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--ink-3);border:1px solid var(--rim-bright);
+  border-radius:var(--radius-md);min-width:200px;
+  box-shadow:var(--shadow-lg);z-index:1000;
+  opacity:0;pointer-events:none;transform:translateY(-8px) scale(0.97);
+  transition:all 0.2s var(--spring);
+  overflow:hidden;
+}
+.dropdown-menu.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.dd-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;font-size:13px;color:var(--t2);
+  cursor:pointer;transition:all 0.15s;border:none;background:none;
+  width:100%;text-align:left;
+}
+.dd-item i{width:15px;font-size:13px;text-align:center}
+.dd-item:hover{background:var(--ink-4);color:var(--t1)}
+.dd-item.danger:hover{background:var(--crimson-dim);color:var(--crimson)}
+.dd-sep{height:1px;background:var(--rim);margin:4px 0}
+.dd-header{padding:12px 16px;border-bottom:1px solid var(--rim)}
+.dd-header .dd-name{font-size:13px;font-weight:700;color:var(--t1)}
+.dd-header .dd-sub{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ═══════════════════════════════════════════════════════════════
+   NOTIFICATION DRAWER
+═══════════════════════════════════════════════════════════════ */
+.drawer-mask{
+  position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(4px);opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+}
+.drawer-mask.open{opacity:1;pointer-events:all}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:2001;
+  width:min(380px,100vw);
+  background:var(--ink-2);border-left:1px solid var(--rim-bright);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform 0.35s var(--ease);
+  box-shadow:-12px 0 60px rgba(0,0,0,0.5);
+}
+.drawer.open{transform:translateX(0)}
+.drawer-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 22px;border-bottom:1px solid var(--rim);flex-shrink:0;
+}
+.drawer-head h3{font-size:17px}
+.drawer-body{flex:1;overflow-y:auto;padding:12px}
+.notif-item{
+  padding:14px;border-radius:var(--radius-md);margin-bottom:8px;
+  border:1px solid transparent;cursor:pointer;transition:all 0.2s;
+}
+.notif-item:hover{background:var(--ink-4);border-color:var(--rim)}
+.notif-item.unread{background:var(--royal-dim);border-color:rgba(91,108,249,0.2)}
+.notif-icon-wrap{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.notif-text{font-size:13px;color:var(--t2);line-height:1.5}
+.notif-text strong{color:var(--t1)}
+.notif-time{font-size:11px;color:var(--t3);margin-top:4px}
+
+/* ═══════════════════════════════════════════════════════════════
+   ██████ LANDING PAGE
+═══════════════════════════════════════════════════════════════ */
+#home{background:var(--ink)}
+
+/* NAV */
+.lp-nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;height:68px;
+  display:flex;align-items:center;padding:0 clamp(16px,5vw,80px);
+  gap:24px;
+  transition:background 0.3s,box-shadow 0.3s;
+}
+.lp-nav.sticked{
+  background:rgba(7,9,15,0.92);backdrop-filter:blur(24px);
+  box-shadow:0 1px 0 var(--rim);
+}
+.logo{
+  font-family:var(--f-display);font-size:22px;font-weight:700;
+  letter-spacing:-0.03em;
+  display:flex;align-items:center;gap:3px;flex-shrink:0;
+}
+.logo-dg{color:var(--t1)}
+.logo-ei{
+  background:linear-gradient(135deg,var(--royal-2),var(--aqua));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.logo-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--aqua);margin-bottom:12px;flex-shrink:0;
+}
+.lp-nav-links{
+  display:flex;align-items:center;gap:4px;margin:0 auto;
+}
+.lp-nav-links a{
+  font-size:14px;font-weight:500;color:var(--t2);
+  padding:7px 14px;border-radius:var(--radius-sm);
+  transition:all 0.2s;
+}
+.lp-nav-links a:hover{color:var(--t1);background:var(--ink-4)}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:120px clamp(16px,5vw,60px) 80px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.hero-inner{position:relative;z-index:1;max-width:860px;margin:0 auto;width:100%}
+
+.hero-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(91,108,249,0.12);
+  border:1px solid rgba(91,108,249,0.28);
+  color:var(--royal-2);
+  padding:6px 16px;border-radius:var(--radius-full);
+  font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:32px;
+  animation:chipIn 0.7s var(--ease) both;
+}
+@keyframes chipIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-title{
+  font-size:clamp(42px,8vw,88px);font-weight:700;
+  letter-spacing:-0.04em;line-height:1.0;
+  margin-bottom:24px;
+  animation:titleIn 0.8s 0.1s var(--ease) both;
+}
+@keyframes titleIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-title .line-1{color:var(--t1)}
+.hero-title .line-2{
+  background:linear-gradient(135deg,var(--royal-2) 0%,var(--aqua) 55%,#B07EFF 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:block;
+}
+
+.hero-sub{
+  font-size:clamp(15px,2.5vw,20px);color:var(--t2);
+  max-width:560px;margin:0 auto 44px;line-height:1.7;
+  animation:subIn 0.8s 0.2s var(--ease) both;
+}
+@keyframes subIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-cta{
+  display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+  animation:ctaIn 0.8s 0.3s var(--ease) both;
+}
+@keyframes ctaIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-social-proof{
+  margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;color:var(--t3);
+}
+.avatar-stack{display:flex}
+.avatar-stack span{
+  width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);
+  background:linear-gradient(135deg,var(--royal),var(--aqua));
+  margin-right:-8px;font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+}
+
+.hero-stats{
+  display:flex;justify-content:center;gap:clamp(28px,6vw,80px);flex-wrap:wrap;
+  margin-top:80px;padding-top:48px;border-top:1px solid var(--rim);
+  animation:statsIn 0.9s 0.5s var(--ease) both;
+}
+@keyframes statsIn{from{opacity:0}to{opacity:1}}
+.stat-num{
+  font-family:var(--f-display);font-size:clamp(32px,5vw,48px);
+  font-weight:700;letter-spacing:-0.03em;
+  background:linear-gradient(135deg,var(--t1),var(--royal-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.stat-lbl{font-size:13px;color:var(--t3);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase}
+
+/* MARQUEE STRIP */
+.marquee-strip{
+  overflow:hidden;padding:20px 0;border-top:1px solid var(--rim);
+  border-bottom:1px solid var(--rim);margin:0 0 20px;
+  background:var(--ink-2);
+}
+.marquee-track{
+  display:flex;gap:48px;white-space:nowrap;
+  animation:marquee 24s linear infinite;
+}
+.marquee-track:hover{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-item{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;color:var(--t3);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+}
+.marquee-item i{color:var(--royal-2)}
+
+/* SECTION BLOCKS */
+.section{padding:clamp(64px,10vw,120px) clamp(16px,5vw,80px)}
+.section-max{max-width:1180px;margin:0 auto}
+.eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--aqua);margin-bottom:14px;
+}
+.section-h{font-size:clamp(28px,4.5vw,52px);font-weight:700;letter-spacing:-0.025em;margin-bottom:18px}
+.section-p{font-size:clamp(14px,2vw,18px);color:var(--t2);line-height:1.7;max-width:540px}
+
+/* BENTO GRID */
+.bento{display:grid;gap:16px;margin-top:56px}
+.bento-2{grid-template-columns:repeat(2,1fr)}
+.bento-3{grid-template-columns:repeat(3,1fr)}
+.bento-cell{border-radius:var(--radius-xl);padding:32px;position:relative;overflow:hidden;min-height:220px}
+.bento-cell.span2{grid-column:span 2}
+.bento-cell.span3{grid-column:span 3}
+.bento-cell-bg-royal{background:linear-gradient(135deg,rgba(91,108,249,0.15),rgba(91,108,249,0.04))}
+.bento-cell-bg-aqua{background:linear-gradient(135deg,rgba(0,212,200,0.12),rgba(0,212,200,0.03))}
+.bento-cell-bg-amber{background:linear-gradient(135deg,rgba(255,181,71,0.12),rgba(255,181,71,0.03))}
+.bento-cell-bg-emerald{background:linear-gradient(135deg,rgba(34,216,122,0.12),rgba(34,216,122,0.03))}
+.bento-cell h3{font-size:20px;margin-bottom:10px}
+.bento-cell p{font-size:14px;color:var(--t2);line-height:1.65}
+.bento-icon{
+  width:52px;height:52px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:20px;
+}
+.bento-watermark{
+  position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;
+  line-height:1;pointer-events:none;
+}
+
+/* HOW IT WORKS — STEPS */
+.steps-list{display:flex;flex-direction:column;gap:0;max-width:680px;margin:56px auto 0}
+.step{display:flex;gap:24px;position:relative;padding-bottom:48px}
+.step:last-child{padding-bottom:0}
+.step::after{
+  content:'';position:absolute;left:21px;top:48px;bottom:0;width:1px;
+  background:linear-gradient(180deg,rgba(91,108,249,0.5),transparent);
+}
+.step:last-child::after{display:none}
+.step-num{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--royal),var(--royal-2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-weight:700;font-size:16px;
+  box-shadow:0 0 24px rgba(91,108,249,0.4);
+}
+.step-body{padding-top:8px}
+.step-body h4{font-size:18px;margin-bottom:8px}
+.step-body p{font-size:14px;color:var(--t2);line-height:1.65}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:56px}
+.testi-card{padding:28px;border-radius:var(--radius-xl)}
+.testi-stars{color:var(--amber);font-size:13px;margin-bottom:14px}
+.testi-text{font-size:15px;color:var(--t2);line-height:1.75;font-style:italic;margin-bottom:22px}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-weight:700;font-size:14px;color:#fff;flex-shrink:0;
+}
+.testi-name{font-size:13px;font-weight:700;color:var(--t1)}
+.testi-role{font-size:12px;color:var(--t3);margin-top:2px}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:920px;margin:56px auto 0}
+.price-card{padding:36px 32px;border-radius:var(--radius-xl);position:relative}
+.price-card.featured{border-color:rgba(91,108,249,0.4);box-shadow:0 0 60px rgba(91,108,249,0.12)}
+.price-pop-badge{
+  position:absolute;top:-13px;right:28px;
+  background:linear-gradient(135deg,var(--royal),var(--aqua));
+  color:#fff;font-size:11px;font-weight:700;
+  padding:4px 14px;border-radius:var(--radius-full);letter-spacing:0.05em;text-transform:uppercase;
+}
+.price-tier{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.price-amount{
+  font-family:var(--f-display);font-size:52px;font-weight:700;letter-spacing:-0.04em;
+  display:flex;align-items:flex-start;gap:2px;
+}
+.price-currency{font-size:22px;margin-top:10px;color:var(--t2)}
+.price-period{font-size:14px;color:var(--t3);align-self:flex-end;padding-bottom:8px}
+.price-desc{font-size:13px;color:var(--t3);margin:8px 0 28px}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:32px}
+.price-features li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--t2)}
+.price-features li i{color:var(--emerald);font-size:12px;width:14px;flex-shrink:0}
+.price-features li.muted i{color:var(--t4)}
+.price-features li.muted{color:var(--t4)}
+
+/* CTA SECTION */
+.cta-section{
+  padding:clamp(64px,10vw,120px) clamp(16px,5vw,80px);
+  text-align:center;
+}
+.cta-box{
+  max-width:700px;margin:0 auto;
+  background:linear-gradient(135deg,rgba(91,108,249,0.12),rgba(0,212,200,0.08));
+  border:1px solid rgba(91,108,249,0.3);
+  border-radius:var(--radius-xl);padding:clamp(48px,8vw,80px) clamp(24px,5vw,60px);
+  position:relative;overflow:hidden;
+}
+.cta-box::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(91,108,249,0.08),transparent);
+}
+
+/* FOOTER */
+.lp-footer{
+  background:var(--ink-2);border-top:1px solid var(--rim);
+  padding:64px clamp(16px,5vw,80px) 32px;
+}
+.footer-grid{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:48px;margin-bottom:48px}
+.footer-brand-text{font-size:14px;color:var(--t3);margin-top:12px;max-width:240px;line-height:1.7}
+.footer-col h5{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
+.footer-col a{display:block;font-size:14px;color:var(--t3);margin-bottom:10px;transition:color 0.2s}
+.footer-col a:hover{color:var(--t1)}
+.footer-bottom{border-top:1px solid var(--rim);padding-top:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-bottom p{font-size:13px;color:var(--t4)}
+.socials{display:flex;gap:10px}
+.social-btn{
+  width:34px;height:34px;border-radius:var(--radius-sm);
+  background:var(--ink-4);border:1px solid var(--rim);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--t3);font-size:13px;transition:all 0.2s;
+}
+.social-btn:hover{background:var(--royal);color:#fff;border-color:var(--royal)}
+
+/* ═══════════════════════════════════════════════════════════════
+   ██████ AUTH PAGES
+═══════════════════════════════════════════════════════════════ */
+.auth-page{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:var(--ink);
+}
+.auth-card-wrap{width:100%;max-width:440px}
+.auth-logo-link{display:block;margin-bottom:32px;text-align:center;cursor:pointer}
+.auth-card{padding:40px;border-radius:var(--radius-xl)}
+.auth-card h2{font-size:28px;margin-bottom:6px}
+.auth-card .auth-sub{font-size:14px;color:var(--t2);margin-bottom:32px}
+.auth-link{color:var(--royal-2);font-weight:600;cursor:pointer}
+.auth-link:hover{text-decoration:underline}
+.social-auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social-auth-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px;border-radius:var(--radius-sm);border:1px solid var(--rim);
+  background:var(--ink-4);font-size:13px;font-weight:600;
+  color:var(--t2);cursor:pointer;transition:all 0.2s;
+}
+.social-auth-btn:hover{background:var(--ink-5);color:var(--t1);border-color:var(--rim-bright)}
+
+/* OTP */
+.otp-row{display:flex;gap:10px;justify-content:center;margin:28px 0}
+.otp-box{
+  width:52px;height:58px;border-radius:var(--radius-sm);
+  background:var(--ink-4);border:1px solid var(--rim);
+  font-family:var(--f-display);font-size:24px;font-weight:700;
+  text-align:center;color:var(--t1);outline:none;
+  transition:all 0.2s;
+}
+.otp-box:focus{border-color:var(--royal);background:var(--royal-dim);box-shadow:0 0 0 3px rgba(91,108,249,0.2)}
+
+/* ═══════════════════════════════════════════════════════════════
+   ██████ APP SHELL
+═══════════════════════════════════════════════════════════════ */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--ink-2);border-right:1px solid var(--rim);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:800;
+  transition:transform 0.32s var(--ease);
+  overflow-y:auto;overflow-x:hidden;
+}
+.sidebar::-webkit-scrollbar{width:0}
+.sidebar-logo-area{
+  padding:18px 16px;border-bottom:1px solid var(--rim);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.sidebar-role-badge{
+  font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--radius-full);
+}
+.sidebar-group{padding:20px 10px 6px;flex-shrink:0}
+.sidebar-group-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--t4);padding:0 8px;margin-bottom:4px;
+}
+.sidebar-link{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 10px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all 0.18s;
+  margin-bottom:1px;position:relative;border:none;background:none;width:100%;text-align:left;
+}
+.sidebar-link i{width:16px;text-align:center;font-size:14px;flex-shrink:0}
+.sidebar-link:hover{background:var(--ink-4);color:var(--t1)}
+.sidebar-link.active{background:var(--royal-dim);color:var(--royal-2)}
+.sidebar-link.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;border-radius:0 2px 2px 0;background:var(--royal);
+}
+.sidebar-link .link-badge{
+  margin-left:auto;background:var(--crimson);color:#fff;
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:var(--radius-full);min-width:18px;text-align:center;
+}
+.sidebar-link .link-new{
+  margin-left:auto;background:var(--emerald-dim);color:var(--emerald);
+  font-size:10px;font-weight:700;padding:1px 7px;border-radius:var(--radius-full);
+}
+.sidebar-footer{
+  margin-top:auto;padding:12px 10px;border-top:1px solid var(--rim);flex-shrink:0;
+}
+.sidebar-user{
+  display:flex;align-items:center;gap:10px;padding:10px;
+  border-radius:var(--radius-sm);cursor:pointer;transition:background 0.2s;
+}
+.sidebar-user:hover{background:var(--ink-4)}
+.u-avatar{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-weight:700;font-size:12px;color:#fff;
+  background:linear-gradient(135deg,var(--royal),var(--aqua));
+}
+.u-name{font-size:13px;font-weight:700;color:var(--t1)}
+.u-role{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* TOPBAR */
+.topbar{
+  height:var(--topbar-h);background:rgba(7,9,15,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--rim);
+  display:flex;align-items:center;padding:0 22px;gap:14px;
+  position:sticky;top:0;z-index:700;flex-shrink:0;
+}
+.topbar-hamburger{
+  background:none;border:none;color:var(--t2);font-size:18px;
+  cursor:pointer;padding:6px;display:none;
+}
+.search-wrap{position:relative;flex:1;max-width:420px}
+.search-wrap input{
+  width:100%;background:var(--ink-4);
+  border:1px solid var(--rim);border-radius:var(--radius-sm);
+  padding:9px 14px 9px 40px;color:var(--t1);font-size:13px;
+  outline:none;transition:all 0.2s;font-family:var(--f-body);
+}
+.search-wrap input:focus{border-color:var(--royal);background:var(--royal-dim)}
+.search-wrap input::placeholder{color:var(--t4)}
+.search-wrap .search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.topbar-icon-btn{
+  width:34px;height:34px;border-radius:var(--radius-sm);border:1px solid var(--rim);
+  background:var(--ink-4);color:var(--t2);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;position:relative;font-size:14px;
+}
+.topbar-icon-btn:hover{background:var(--ink-5);color:var(--t1);border-color:var(--rim-bright)}
+.notif-pip{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--crimson);border:1.5px solid var(--ink);
+}
+
+/* MAIN CONTENT */
+.main{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-height:100vh}
+.content{flex:1;padding:28px 26px 60px}
+
+/* PAGE HEADER */
+.ph{margin-bottom:26px}
+.ph h1{font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-0.025em}
+.ph p{font-size:14px;color:var(--t2);margin-top:4px}
+.ph-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* CONTENT TAB */
+.ctab{display:none}
+.ctab.active{display:block;animation:pageIn 0.3s var(--ease) both}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{padding:22px;display:flex;align-items:flex-start;gap:14px;border-radius:var(--radius-lg)}
+.stat-ic{
+  width:44px;height:44px;border-radius:var(--radius-md);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.stat-ic.royal{background:var(--royal-dim);color:var(--royal-2)}
+.stat-ic.aqua{background:var(--aqua-dim);color:var(--aqua)}
+.stat-ic.amber{background:var(--amber-dim);color:var(--amber)}
+.stat-ic.emerald{background:var(--emerald-dim);color:var(--emerald)}
+.stat-ic.crimson{background:var(--crimson-dim);color:var(--crimson)}
+.stat-val{font-family:var(--f-display);font-size:26px;font-weight:700;letter-spacing:-0.02em}
+.stat-lbl-sm{font-size:12px;color:var(--t3);margin-bottom:5px}
+.stat-delta{font-size:12px;display:inline-flex;align-items:center;gap:4px;margin-top:4px}
+.stat-delta.up{color:var(--emerald)}
+.stat-delta.down{color:var(--crimson)}
+
+/* TWO COL / GRID LAYOUTS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.col-7-5{display:grid;grid-template-columns:7fr 5fr;gap:18px}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{
+  text-align:left;padding:9px 16px;
+  font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--t3);border-bottom:1px solid var(--rim);white-space:nowrap;
+}
+.data-table td{padding:13px 16px;font-size:13px;color:var(--t2);border-bottom:1px solid var(--rim);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,0.015);color:var(--t1)}
+.data-table .td-main{color:var(--t1);font-weight:600;font-size:13px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* CHART PANEL */
+.chart-panel{padding:22px;border-radius:var(--radius-lg)}
+.chart-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.chart-panel-head h3{font-size:15px;font-weight:700}
+.tab-pills{display:flex;gap:3px;background:var(--ink-4);padding:3px;border-radius:var(--radius-sm)}
+.tab-pill{
+  padding:5px 12px;border-radius:var(--radius-xs);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.18s;color:var(--t3);border:none;background:none;
+}
+.tab-pill.active{background:var(--ink-3);color:var(--t1);box-shadow:var(--shadow-sm)}
+
+/* SVG CHART */
+.chart-svg{width:100%;height:180px;overflow:visible}
+.c-area{fill:url(#grad-royal)}
+.c-line{fill:none;stroke:var(--royal-2);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.c-line-2{fill:none;stroke:var(--aqua);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:4 3;opacity:0.7}
+.c-dot{fill:var(--royal-2);stroke:var(--ink);stroke-width:2;cursor:pointer}
+.c-dot:hover{r:6;fill:var(--aqua)}
+.c-label{fill:var(--t4);font-size:10px;font-family:var(--f-mono)}
+
+/* ACTIVITY FEED */
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--rim)}
+.feed-item:last-child{border-bottom:none}
+.feed-ic{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.feed-text{flex:1}
+.feed-text p{font-size:13px;color:var(--t2);line-height:1.5}
+.feed-text p strong{color:var(--t1)}
+.feed-time{font-size:11px;color:var(--t4);margin-top:3px}
+
+/* COURSE GRID */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.course-card{border-radius:var(--radius-lg);overflow:hidden}
+.course-thumb{
+  height:148px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:52px;
+  background:var(--ink-5);
+}
+.course-thumb::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(91,108,249,0.25),rgba(0,212,200,0.15));
+}
+.course-thumb-badge{
+  position:absolute;top:10px;left:10px;z-index:2;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  color:var(--t1);font-size:11px;font-weight:700;
+  padding:3px 9px;border-radius:var(--radius-full);
+}
+.course-body{padding:18px}
+.course-cat{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--aqua);margin-bottom:7px}
+.course-title-text{font-size:14px;font-weight:700;line-height:1.4;margin-bottom:12px}
+.course-meta-row{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--t3);margin-bottom:14px}
+.course-meta-row span{display:flex;align-items:center;gap:4px}
+.course-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--rim);padding-top:13px}
+.course-price-tag{font-family:var(--f-display);font-size:18px;font-weight:700}
+.course-price-orig{font-size:12px;color:var(--t3);text-decoration:line-through;margin-right:5px;font-family:var(--f-body);font-weight:400}
+.course-rating{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--t2)}
+.course-rating i{color:var(--amber)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:0.4}
+.empty-state h3{font-size:18px;margin-bottom:8px}
+.empty-state p{font-size:14px;color:var(--t2);max-width:300px;margin:0 auto 24px}
+
+/* TOGGLE */
+.toggle{position:relative;width:42px;height:23px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{
+  position:absolute;inset:0;background:var(--ink-5);border:1px solid var(--rim);
+  border-radius:var(--radius-full);cursor:pointer;transition:0.28s;
+}
+.toggle-track::before{
+  content:'';position:absolute;width:17px;height:17px;border-radius:50%;
+  left:2px;top:2px;background:var(--t3);transition:0.28s;
+}
+.toggle input:checked + .toggle-track{background:var(--royal);border-color:var(--royal)}
+.toggle input:checked + .toggle-track::before{transform:translateX(19px);background:#fff}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--rim)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-lbl h5{font-size:14px;font-weight:600;margin-bottom:2px}
+.toggle-lbl p{font-size:12px;color:var(--t3)}
+
+/* SETTINGS NAV */
+.settings-layout{display:grid;grid-template-columns:200px 1fr;gap:22px}
+.settings-nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:var(--radius-sm);font-size:13px;color:var(--t2);
+  cursor:pointer;transition:all 0.18s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;
+}
+.settings-nav-item i{width:15px;text-align:center;font-size:13px}
+.settings-nav-item:hover{background:var(--ink-4);color:var(--t1)}
+.settings-nav-item.active{background:var(--royal-dim);color:var(--royal-2)}
+.setting-section-content{display:none}
+.setting-section-content.active{display:block;animation:pageIn 0.25s var(--ease) both}
+
+/* SCHOOL FACULTY ACCORDION */
+.faculty-block{border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px}
+.faculty-hd{
+  display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;
+  transition:background 0.18s;user-select:none;
+}
+.faculty-hd:hover{background:rgba(255,255,255,0.025)}
+.faculty-chevron{transition:transform 0.3s var(--ease);color:var(--t3);margin-left:auto}
+.faculty-chevron.open{transform:rotate(180deg)}
+.faculty-body{
+  padding:0 22px;max-height:0;overflow:hidden;
+  transition:max-height 0.4s var(--ease),padding 0.3s;
+}
+.faculty-body.open{max-height:600px;padding:0 22px 20px}
+.dept-row{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.02);border:1px solid var(--rim);
+  margin-bottom:8px;
+}
+
+/* COURSE BUILDER */
+.builder-layout{display:grid;grid-template-columns:1fr 300px;gap:22px;align-items:start}
+.section-header-row{
+  display:flex;align-items:center;gap:12px;padding:13px 16px;
+  background:var(--royal-dim);border:1px solid rgba(91,108,249,0.2);
+  border-radius:var(--radius-sm);cursor:pointer;margin-bottom:8px;
+}
+.lesson-row{
+  display:flex;align-items:center;gap:11px;padding:10px 14px;
+  border-radius:var(--radius-xs);border:1px solid transparent;
+  font-size:13px;color:var(--t2);cursor:pointer;transition:all 0.18s;margin-bottom:3px;
+}
+.lesson-row:hover{background:var(--ink-4);border-color:var(--rim)}
+.drag-handle-icon{color:var(--t4);cursor:grab;font-size:12px}
+
+/* MARKETPLACE LAYOUT */
+.market-layout{display:grid;grid-template-columns:240px 1fr;gap:22px}
+.filter-block{border-radius:var(--radius-lg);padding:22px;align-self:start;position:sticky;top:calc(var(--topbar-h) + 16px)}
+.filter-group{margin-bottom:22px}
+.filter-group h4{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.filter-check{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer;font-size:13px;color:var(--t2)}
+.filter-check input{accent-color:var(--royal);width:14px;height:14px}
+.filter-check label{cursor:pointer}
+.filter-check:hover label{color:var(--t1)}
+input[type=range]{width:100%;accent-color:var(--royal)}
+
+/* ADMIN TABLE ACTIONS */
+.tbl-actions{display:flex;gap:6px}
+.tbl-btn{
+  padding:5px 11px;border-radius:var(--radius-xs);
+  font-size:11px;font-weight:700;cursor:pointer;transition:all 0.18s;border:none;
+}
+.tbl-btn-approve{background:var(--emerald-dim);color:var(--emerald)}
+.tbl-btn-approve:hover{background:var(--emerald);color:#000}
+.tbl-btn-reject{background:var(--crimson-dim);color:var(--crimson)}
+.tbl-btn-reject:hover{background:var(--crimson);color:#fff}
+.tbl-btn-view{background:var(--ink-4);color:var(--t2)}
+.tbl-btn-view:hover{background:var(--ink-5);color:var(--t1)}
+
+/* MOBILE BOTTOM NAV */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:900;
+  background:rgba(13,17,23,0.96);backdrop-filter:blur(20px);
+  border-top:1px solid var(--rim);
+  padding:8px 0 max(8px,env(safe-area-inset-bottom));
+}
+.bottom-nav-items{display:flex;justify-content:space-around}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px;cursor:pointer;color:var(--t3);
+  font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+  transition:color 0.2s;border:none;background:none;
+}
+.bnav-item i{font-size:18px}
+.bnav-item.active{color:var(--royal-2)}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.65s var(--ease),transform 0.65s var(--ease)}
+.reveal.d1{transition-delay:0.08s}
+.reveal.d2{transition-delay:0.16s}
+.reveal.d3{transition-delay:0.24s}
+.reveal.d4{transition-delay:0.32s}
+.reveal.visible{opacity:1;transform:none}
+
+/* SPINNER */
+.spinner{
+  width:18px;height:18px;border:2px solid rgba(255,255,255,0.25);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.65s linear infinite;display:inline-block;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ROLE BADGE COLORS */
+.role-student{background:var(--aqua-dim);color:var(--aqua)}
+.role-teacher{background:var(--royal-dim);color:var(--royal-2)}
+.role-owner{background:var(--amber-dim);color:var(--amber)}
+.role-admin{background:var(--crimson-dim);color:var(--crimson)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .two-col,.col-7-5{grid-template-columns:1fr}
+  .three-col{grid-template-columns:1fr 1fr}
+  .bento-2,.bento-3{grid-template-columns:1fr 1fr}
+  .bento-cell.span3{grid-column:span 2}
+  .market-layout{grid-template-columns:1fr}
+  .builder-layout{grid-template-columns:1fr}
+  .settings-layout{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none;box-shadow:var(--shadow-lg)}
+  .main{margin-left:0}
+  .topbar-hamburger{display:flex}
+  .lp-nav-links{display:none}
+  .bottom-nav{display:block}
+  .content{padding:20px 16px 80px}
+  .bento-2,.bento-3{grid-template-columns:1fr}
+  .bento-cell.span2,.bento-cell.span3{grid-column:span 1}
+  .footer-grid{grid-template-columns:1fr;gap:28px}
+  .three-col{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .course-grid{grid-template-columns:1fr}
+  .otp-row{gap:7px}
+  .otp-box{width:44px;height:52px;font-size:20px}
+  .hero-cta{flex-direction:column;align-items:center}
+  .social-auth-grid{grid-template-columns:1fr}
+}
+@media(max-width:360px){
+  .stats-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- AMBIENT -->
+<div class="ambient" aria-hidden="true">
+  <div class="ambient-orb orb-a"></div>
+  <div class="ambient-orb orb-b"></div>
+  <div class="ambient-orb orb-c"></div>
+</div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- TOAST ROOT -->
+<div id="toast-root" role="status" aria-live="polite"></div>
+
+<!-- NOTIFICATION DRAWER -->
+<div class="drawer-mask" id="drawerMask" onclick="UI.closeDrawer()"></div>
+<div class="drawer" id="notifDrawer" role="dialog" aria-label="Notifications">
+  <div class="drawer-head">
+    <h3>Notifications</h3>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="State.markAllRead()">Mark all read</button>
+      <button class="topbar-icon-btn" onclick="UI.closeDrawer()"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+  <div class="drawer-body" id="notifList"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: HOME (LANDING)
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <nav class="lp-nav" id="lpNav">
+    <div class="logo"><span class="logo-dg">DG</span><span class="logo-ei">EI</span><span class="logo-dot"></span></div>
+    <div class="lp-nav-links">
+      <a href="#features-section">Features</a>
+      <a href="#how-section">How It Works</a>
+      <a href="#pricing-section">Pricing</a>
+      <a href="#testi-section">Stories</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn btn-ghost" onclick="Router.go('login')">Sign In</button>
+      <button class="btn btn-royal" onclick="Router.go('register')">Get Started <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-chip"><span class="dot-live" style="width:7px;height:7px;background:var(--emerald);display:inline-block;border-radius:50%;animation:pulse 2s infinite;margin-right:4px;"></span> Now live across 42 countries</div>
+      <h1 class="hero-title">
+        <span class="line-1">Build the Future</span>
+        <span class="line-2">of Global Education</span>
+      </h1>
+      <p class="hero-sub">Create schools, launch courses, and connect students worldwide — the platform built first for Africa, then the world.</p>
+      <div class="hero-cta">
+        <button class="btn btn-royal btn-xl" onclick="Router.go('register')"><i class="fas fa-rocket"></i> Start Building Free</button>
+        <button class="btn btn-ghost btn-xl" onclick="Router.go('dashboard')">View Live Demo <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="hero-social-proof" style="margin-top:20px;">
+        <div class="avatar-stack">
+          <span>AO</span><span>EI</span><span>FA</span><span>KN</span>
+        </div>
+        <span>Trusted by <strong style="color:var(--t1);">120,000+</strong> educators & learners</span>
+      </div>
+      <div class="hero-stats">
+        <div style="text-align:center;"><div class="stat-num" data-count="120000" data-suffix="+">0</div><div class="stat-lbl">Students Enrolled</div></div>
+        <div style="text-align:center;"><div class="stat-num" data-count="4800" data-suffix="+">0</div><div class="stat-lbl">Courses Created</div></div>
+        <div style="text-align:center;"><div class="stat-num" data-count="340" data-suffix="">0</div><div class="stat-lbl">Active Schools</div></div>
+        <div style="text-align:center;"><div class="stat-num" data-count="42" data-suffix="">0</div><div class="stat-lbl">Countries</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track" aria-hidden="true">
+      <div class="marquee-item"><i class="fas fa-graduation-cap"></i> BUILT FOR AFRICA</div>
+      <div class="marquee-item"><i class="fas fa-globe"></i> 42 COUNTRIES</div>
+      <div class="marquee-item"><i class="fas fa-mobile"></i> MOBILE FIRST</div>
+      <div class="marquee-item"><i class="fas fa-bolt"></i> LOW DATA MODE</div>
+      <div class="marquee-item"><i class="fas fa-certificate"></i> VERIFIED CERTS</div>
+      <div class="marquee-item"><i class="fas fa-shield-alt"></i> BANK-GRADE SECURITY</div>
+      <div class="marquee-item"><i class="fas fa-credit-card"></i> FLUTTERWAVE + STRIPE</div>
+      <div class="marquee-item"><i class="fas fa-users"></i> MULTI-TENANT SCHOOLS</div>
+      <!-- duplicate for seamless loop -->
+      <div class="marquee-item"><i class="fas fa-graduation-cap"></i> BUILT FOR AFRICA</div>
+      <div class="marquee-item"><i class="fas fa-globe"></i> 42 COUNTRIES</div>
+      <div class="marquee-item"><i class="fas fa-mobile"></i> MOBILE FIRST</div>
+      <div class="marquee-item"><i class="fas fa-bolt"></i> LOW DATA MODE</div>
+      <div class="marquee-item"><i class="fas fa-certificate"></i> VERIFIED CERTS</div>
+      <div class="marquee-item"><i class="fas fa-shield-alt"></i> BANK-GRADE SECURITY</div>
+      <div class="marquee-item"><i class="fas fa-credit-card"></i> FLUTTERWAVE + STRIPE</div>
+      <div class="marquee-item"><i class="fas fa-users"></i> MULTI-TENANT SCHOOLS</div>
+    </div>
+  </div>
+
+  <!-- FEATURES BENTO -->
+  <section class="section" id="features-section">
+    <div class="section-max">
+      <div class="reveal"><div class="eyebrow">What We Offer</div></div>
+      <div class="reveal d1"><h2 class="section-h">Everything you need to<br>power education at scale</h2></div>
+      <div class="bento bento-3" style="margin-top:48px;">
+        <div class="bento-cell card bento-cell-bg-royal card-hover reveal d1">
+          <div class="bento-icon" style="background:var(--royal-dim);color:var(--royal-2)"><i class="fas fa-school"></i></div>
+          <h3>Multi-Tenant Schools</h3>
+          <p>Create branded institutions with full faculty and department structures. Your school, your identity.</p>
+          <div class="bento-watermark">🏫</div>
+        </div>
+        <div class="bento-cell card bento-cell-bg-aqua card-hover reveal d2">
+          <div class="bento-icon" style="background:var(--aqua-dim);color:var(--aqua)"><i class="fas fa-play-circle"></i></div>
+          <h3>Course Builder</h3>
+          <p>Drag-and-drop curriculum editor. Videos, quizzes, assignments, and resources — all in one place.</p>
+          <div class="bento-watermark">📚</div>
+        </div>
+        <div class="bento-cell card bento-cell-bg-emerald card-hover reveal d3">
+          <div class="bento-icon" style="background:var(--emerald-dim);color:var(--emerald)"><i class="fas fa-globe-africa"></i></div>
+          <h3>Africa-First Design</h3>
+          <p>Low-data mode, offline access, Flutterwave payments, and mobile-first design for every device and network.</p>
+          <div class="bento-watermark">🌍</div>
+        </div>
+        <div class="bento-cell card bento-cell-bg-amber card-hover span2 reveal d1" style="min-height:180px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+          <div>
+            <div class="bento-icon" style="background:var(--amber-dim);color:var(--amber)"><i class="fas fa-chart-line"></i></div>
+            <h3>Rich Analytics Dashboard</h3>
+            <p style="max-width:360px;">Track student progress, course performance, revenue, and engagement in real-time with beautiful visualisations.</p>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;color:var(--t2);"><span>Enrollments</span><span style="color:var(--amber);">+24%</span></div><div class="progress-track"><div class="progress-fill" style="width:78%"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;color:var(--t2);"><span>Completion</span><span style="color:var(--emerald);">+11%</span></div><div class="progress-track"><div class="progress-fill success" style="width:64%"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;color:var(--t2);"><span>Revenue</span><span style="color:var(--royal-2);">+31%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="bento-cell card bento-cell-bg-royal card-hover reveal d2">
+          <div class="bento-icon" style="background:var(--royal-dim);color:var(--royal-2)"><i class="fas fa-certificate"></i></div>
+          <h3>Digital Certificates</h3>
+          <p>Auto-generate verified, shareable certificates. Blockchain-backed verification coming soon.</p>
+          <div class="bento-watermark">🏆</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how-section" style="background:var(--ink-2);">
+    <div class="section-max" style="text-align:center;">
+      <div class="reveal"><div class="eyebrow">Simple Process</div></div>
+      <div class="reveal d1"><h2 class="section-h">From idea to live school<br>in under an hour</h2></div>
+      <div class="steps-list" style="text-align:left;">
+        <div class="step reveal d1">
+          <div class="step-num">1</div>
+          <div class="step-body"><h4>Create Your Account</h4><p>Sign up as student, teacher, or school owner. OTP verification and instant dashboard access.</p></div>
+        </div>
+        <div class="step reveal d2">
+          <div class="step-num">2</div>
+          <div class="step-body"><h4>Set Up Your School or Courses</h4><p>Build faculty and department structures. Create courses with our drag-and-drop builder. Students browse and enroll.</p></div>
+        </div>
+        <div class="step reveal d3">
+          <div class="step-num">3</div>
+          <div class="step-body"><h4>Publish & Earn</h4><p>Go live on the global marketplace. Accept Flutterwave or Stripe payments. Watch revenue grow.</p></div>
+        </div>
+        <div class="step reveal d4">
+          <div class="step-num">4</div>
+          <div class="step-body"><h4>Track, Improve & Scale</h4><p>Real-time analytics show you exactly what's working. Refine content, grow your school globally.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="testi-section">
+    <div class="section-max">
+      <div class="reveal"><div class="eyebrow">Success Stories</div></div>
+      <div class="reveal d1"><h2 class="section-h">Educators & students love DGEI</h2></div>
+      <div class="testi-grid">
+        <div class="testi-card card card-hover reveal d1">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"I launched my coding school in Lagos with zero technical knowledge. Within 3 months — 800 students and consistent income. DGEI changed my life."</p>
+          <div class="testi-author"><div class="testi-avatar" style="background:linear-gradient(135deg,var(--royal),var(--aqua))">AO</div><div><div class="testi-name">Adaeze Okonkwo</div><div class="testi-role">School Owner, Lagos Tech School</div></div></div>
+        </div>
+        <div class="testi-card card card-hover reveal d2">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"The course builder is insanely powerful. Built a 40-lesson data science course in one weekend. Analytics showed me exactly where students dropped off."</p>
+          <div class="testi-author"><div class="testi-avatar" style="background:linear-gradient(135deg,var(--emerald),var(--aqua))">EI</div><div><div class="testi-name">Emmanuel Ibe</div><div class="testi-role">Senior Instructor, Data Hub Africa</div></div></div>
+        </div>
+        <div class="testi-card card card-hover reveal d3">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Studied graphic design from Kano on 3G. It worked perfectly. I now freelance globally. This platform is a game-changer for African youth."</p>
+          <div class="testi-author"><div class="testi-avatar" style="background:linear-gradient(135deg,var(--amber),#EF4444))">FA</div><div><div class="testi-name">Fatima Abubakar</div><div class="testi-role">Student → Freelance Designer</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="pricing-section" style="background:var(--ink-2);">
+    <div class="section-max" style="text-align:center;">
+      <div class="reveal"><div class="eyebrow">Pricing</div></div>
+      <div class="reveal d1"><h2 class="section-h">Honest, transparent pricing</h2></div>
+      <div class="reveal d2"><p class="section-p" style="margin:0 auto;">Start free, scale as you grow. No hidden fees, no surprises ever.</p></div>
+      <div class="pricing-grid">
+        <div class="price-card card card-hover reveal d1">
+          <div class="price-tier">Starter</div>
+          <div class="price-amount"><span class="price-currency"></span>Free</div>
+          <div class="price-desc">Forever free, no credit card required</div>
+          <ul class="price-features"><li><i class="fas fa-check"></i>Up to 5 courses</li><li><i class="fas fa-check"></i>50 students</li><li><i class="fas fa-check"></i>Basic analytics</li><li><i class="fas fa-check"></i>Community access</li><li class="muted"><i class="fas fa-times"></i>Custom domain</li><li class="muted"><i class="fas fa-times"></i>Certificates</li></ul>
+          <button class="btn btn-ghost" style="width:100%;" onclick="Router.go('register')">Get Started Free</button>
+        </div>
+        <div class="price-card card featured reveal d2">
+          <div class="price-pop-badge">Most Popular</div>
+          <div class="price-tier">Pro</div>
+          <div class="price-amount"><span class="price-currency">₦</span>9,900<span class="price-period">/mo</span></div>
+          <div class="price-desc">Billed annually — save 30%</div>
+          <ul class="price-features"><li><i class="fas fa-check"></i>Unlimited courses</li><li><i class="fas fa-check"></i>Unlimited students</li><li><i class="fas fa-check"></i>Advanced analytics</li><li><i class="fas fa-check"></i>Custom domain</li><li><i class="fas fa-check"></i>Certificates</li><li><i class="fas fa-check"></i>Live sessions</li></ul>
+          <button class="btn btn-royal" style="width:100%;" onclick="Router.go('register')">Start Free Trial</button>
+        </div>
+        <div class="price-card card card-hover reveal d3">
+          <div class="price-tier">School</div>
+          <div class="price-amount"><span class="price-currency">₦</span>49k<span class="price-period">/mo</span></div>
+          <div class="price-desc">For institutions & enterprises</div>
+          <ul class="price-features"><li><i class="fas fa-check"></i>Multi-tenant school</li><li><i class="fas fa-check"></i>Faculties & departments</li><li><i class="fas fa-check"></i>Admin panel</li><li><i class="fas fa-check"></i>White-labeling</li><li><i class="fas fa-check"></i>SSO & LDAP</li><li><i class="fas fa-check"></i>Dedicated support</li></ul>
+          <button class="btn btn-ghost" style="width:100%;" onclick="Toast.show('info','Contact Sales','Our team will reach out within 24 hours.')">Contact Sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-box reveal">
+      <div style="position:relative;z-index:1;">
+        <h2 style="font-size:clamp(28px,5vw,48px);letter-spacing:-0.03em;margin-bottom:16px;">Ready to transform<br>education in Africa?</h2>
+        <p style="color:var(--t2);font-size:16px;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto;">Join 120,000 educators and students already building the future.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-royal btn-xl" onclick="Router.go('register')"><i class="fas fa-rocket"></i> Launch Your School</button>
+          <button class="btn btn-ghost btn-xl" onclick="Router.go('marketplace')"><i class="fas fa-store"></i> Browse Courses</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="lp-footer">
+    <div class="section-max">
+      <div class="footer-grid">
+        <div>
+          <div class="logo"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div>
+          <p class="footer-brand-text">Empowering Africa's education future — one course, one school, one student at a time.</p>
+          <div class="socials" style="margin-top:16px;">
+            <a class="social-btn" href="#"><i class="fab fa-twitter"></i></a>
+            <a class="social-btn" href="#"><i class="fab fa-linkedin"></i></a>
+            <a class="social-btn" href="#"><i class="fab fa-instagram"></i></a>
+            <a class="social-btn" href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col"><h5>Product</h5><a href="#">Features</a><a href="#">Pricing</a><a href="#">Marketplace</a><a href="#">Mobile App</a></div>
+        <div class="footer-col"><h5>Company</h5><a href="#">About Us</a><a href="#">Blog</a><a href="#">Careers</a><a href="#">Press</a></div>
+        <div class="footer-col"><h5>Support</h5><a href="#">Help Center</a><a href="#">Community</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Digital Global Education Infrastructure. All rights reserved.</p>
+        <p>Made with ❤️ for Africa</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: LOGIN
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-page">
+    <div class="auth-card-wrap">
+      <div class="auth-logo-link" onclick="Router.go('home')"><div class="logo" style="justify-content:center;font-size:26px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+      <div class="auth-card card glass">
+        <h2>Welcome back</h2>
+        <p class="auth-sub">Sign in to your DGEI account</p>
+        <div class="field" id="f-login-email">
+          <label>Email Address</label>
+          <div class="input-wrap"><i class="fas fa-envelope input-icon"></i><input class="input" type="email" id="loginEmail" placeholder="you@example.com"></div>
+          <div class="field-error">Please enter a valid email.</div>
+        </div>
+        <div class="field" id="f-login-pass">
+          <label>Password</label>
+          <div class="input-wrap"><i class="fas fa-lock input-icon"></i><input class="input" type="password" id="loginPass" placeholder="••••••••"><span class="input-action" onclick="Auth.togglePass('loginPass',this)"><i class="fas fa-eye"></i></span></div>
+          <div class="field-error">Password is required.</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--t2);"><input type="checkbox" style="accent-color:var(--royal);"> Remember me</label>
+          <span class="auth-link" style="font-size:13px;" onclick="Router.go('forgot')">Forgot password?</span>
+        </div>
+        <button class="btn btn-royal" style="width:100%;padding:13px;" id="loginBtn" onclick="Auth.login()">Sign In</button>
+        <div class="divider"><span>or continue with</span></div>
+        <div class="social-auth-grid">
+          <button class="social-auth-btn" onclick="Toast.show('info','Google OAuth','Coming soon!')"><i class="fab fa-google" style="color:#EA4335;"></i> Google</button>
+          <button class="social-auth-btn" onclick="Toast.show('info','LinkedIn OAuth','Coming soon!')"><i class="fab fa-linkedin" style="color:#0A66C2;"></i> LinkedIn</button>
+        </div>
+        <p style="text-align:center;margin-top:24px;font-size:14px;color:var(--t2);">Don't have an account? <span class="auth-link" onclick="Router.go('register')">Sign up free</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: REGISTER
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-register" class="page">
+  <div class="auth-page">
+    <div class="auth-card-wrap" style="max-width:480px;">
+      <div class="auth-logo-link" onclick="Router.go('home')"><div class="logo" style="justify-content:center;font-size:26px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+      <div class="auth-card card glass">
+        <h2>Create your account</h2>
+        <p class="auth-sub">Join 120,000+ learners and educators on DGEI</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="field"><label>First Name</label><input class="input" type="text" placeholder="John"></div>
+          <div class="field"><label>Last Name</label><input class="input" type="text" placeholder="Doe"></div>
+        </div>
+        <div class="field"><label>Email Address</label><div class="input-wrap"><i class="fas fa-envelope input-icon"></i><input class="input" type="email" placeholder="you@example.com"></div></div>
+        <div class="field"><label>I am a...</label>
+          <select class="input" id="regRole">
+            <option value="">Select your role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher / Instructor</option>
+            <option value="owner">School Owner</option>
+            <option value="enterprise">Institution / Enterprise</option>
+          </select>
+        </div>
+        <div class="field"><label>Password</label><div class="input-wrap"><i class="fas fa-lock input-icon"></i><input class="input" type="password" placeholder="At least 8 characters" id="regPass"><span class="input-action" onclick="Auth.togglePass('regPass',this)"><i class="fas fa-eye"></i></span></div></div>
+        <div class="field"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:var(--t2);;font-weight:400;"><input type="checkbox" style="accent-color:var(--royal);margin-top:2px;flex-shrink:0;"> I agree to the <span class="auth-link">Terms of Service</span> and <span class="auth-link">Privacy Policy</span></label></div>
+        <button class="btn btn-royal" style="width:100%;padding:13px;" onclick="Auth.register()">Create Account</button>
+        <p style="text-align:center;margin-top:20px;font-size:14px;color:var(--t2);">Already have an account? <span class="auth-link" onclick="Router.go('login')">Sign in</span></p>
+      </div>
+      <button onclick="Router.go('home')" style="display:block;margin:14px auto 0;font-size:13px;color:var(--t3);background:none;border:none;cursor:pointer;"><i class="fas fa-arrow-left" style="margin-right:5px;"></i>Back to home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: FORGOT PASSWORD
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-forgot" class="page">
+  <div class="auth-page">
+    <div class="auth-card-wrap">
+      <div class="auth-logo-link" onclick="Router.go('home')"><div class="logo" style="justify-content:center;font-size:26px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+      <div class="auth-card card glass" style="text-align:center;">
+        <div style="width:64px;height:64px;background:var(--royal-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px;color:var(--royal-2);"><i class="fas fa-key"></i></div>
+        <h2>Reset Password</h2>
+        <p class="auth-sub">Enter your email — we'll send a reset OTP</p>
+        <div class="field" style="text-align:left;"><label>Email Address</label><div class="input-wrap"><i class="fas fa-envelope input-icon"></i><input class="input" type="email" placeholder="you@example.com"></div></div>
+        <button class="btn btn-royal" style="width:100%;padding:13px;" onclick="Auth.sendOTP()">Send Reset Code</button>
+        <p style="margin-top:20px;font-size:14px;color:var(--t2);">Remembered it? <span class="auth-link" onclick="Router.go('login')">Sign in</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: OTP VERIFICATION
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-otp" class="page">
+  <div class="auth-page">
+    <div class="auth-card-wrap">
+      <div class="auth-card card glass" style="text-align:center;">
+        <div style="width:64px;height:64px;background:var(--aqua-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px;color:var(--aqua);"><i class="fas fa-shield-alt"></i></div>
+        <h2>Verify Email</h2>
+        <p class="auth-sub">We sent a 6-digit code to <strong style="color:var(--t1);" id="otpEmail">you@example.com</strong></p>
+        <div class="otp-row">
+          <input class="otp-box" type="text" maxlength="1" id="otp0" oninput="Auth.otpNext(this,0)" onkeydown="Auth.otpBack(event,0)">
+          <input class="otp-box" type="text" maxlength="1" id="otp1" oninput="Auth.otpNext(this,1)" onkeydown="Auth.otpBack(event,1)">
+          <input class="otp-box" type="text" maxlength="1" id="otp2" oninput="Auth.otpNext(this,2)" onkeydown="Auth.otpBack(event,2)">
+          <input class="otp-box" type="text" maxlength="1" id="otp3" oninput="Auth.otpNext(this,3)" onkeydown="Auth.otpBack(event,3)">
+          <input class="otp-box" type="text" maxlength="1" id="otp4" oninput="Auth.otpNext(this,4)" onkeydown="Auth.otpBack(event,4)">
+          <input class="otp-box" type="text" maxlength="1" id="otp5" oninput="Auth.otpNext(this,5)" onkeydown="Auth.otpBack(event,5)">
+        </div>
+        <button class="btn btn-royal" style="width:100%;padding:13px;" onclick="Auth.verifyOTP()">Verify & Continue</button>
+        <p style="margin-top:20px;font-size:13px;color:var(--t2);">Didn't receive it? <span class="auth-link" id="resendBtn" onclick="Auth.resend()">Resend Code</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: DASHBOARD (APP SHELL)
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="app-page">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="appSidebar">
+    <div class="sidebar-logo-area">
+      <div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div>
+      <span class="sidebar-role-badge badge badge-amber" id="sidebarRoleBadge">Pro</span>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Overview</div>
+      <button class="sidebar-link active" data-tab="tab-overview" onclick="App.switchTab(this)"><i class="fas fa-home"></i> Dashboard</button>
+      <button class="sidebar-link" data-tab="tab-courses" onclick="App.switchTab(this)"><i class="fas fa-book-open"></i> My Courses <span class="link-new">4</span></button>
+      <button class="sidebar-link" data-tab="tab-progress" onclick="App.switchTab(this)"><i class="fas fa-chart-bar"></i> Progress</button>
+      <button class="sidebar-link" data-tab="tab-certs" onclick="App.switchTab(this)"><i class="fas fa-certificate"></i> Certificates</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Explore</div>
+      <button class="sidebar-link" onclick="Router.go('marketplace')"><i class="fas fa-store"></i> Marketplace</button>
+      <button class="sidebar-link" data-tab="tab-community" onclick="App.switchTab(this)"><i class="fas fa-users"></i> Community</button>
+      <button class="sidebar-link" onclick="Router.go('school')"><i class="fas fa-university"></i> My School</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Create</div>
+      <button class="sidebar-link" onclick="Router.go('builder')"><i class="fas fa-plus-circle"></i> Create Course</button>
+      <button class="sidebar-link" data-tab="tab-earnings" onclick="App.switchTab(this)"><i class="fas fa-wallet"></i> Earnings</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">System</div>
+      <button class="sidebar-link" onclick="Router.go('admin')"><i class="fas fa-shield-alt"></i> Admin Panel <span class="link-badge">8</span></button>
+      <button class="sidebar-link" onclick="Router.go('settings')"><i class="fas fa-cog"></i> Settings</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="dropdown">
+        <div class="sidebar-user" onclick="UI.toggleDropdown('sidebarUserDD')">
+          <div class="u-avatar" id="sidebarAvatar">RO</div>
+          <div style="flex:1;min-width:0;">
+            <div class="u-name" id="sidebarName">Rock Okorie</div>
+            <div class="u-role" id="sidebarRole">School Owner · Pro</div>
+          </div>
+          <i class="fas fa-ellipsis-v" style="color:var(--t3);font-size:13px;flex-shrink:0;"></i>
+        </div>
+        <div class="dropdown-menu" id="sidebarUserDD" style="bottom:calc(100% + 8px);top:auto;">
+          <div class="dd-header"><div class="dd-name" id="ddName">Rock Okorie</div><div class="dd-sub" id="ddEmail">rock@dgei.edu</div></div>
+          <button class="dd-item"><i class="fas fa-user"></i> View Profile</button>
+          <button class="dd-item" onclick="Router.go('settings')"><i class="fas fa-cog"></i> Settings</button>
+          <div class="dd-sep"></div>
+          <button class="dd-item danger" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="topbar-hamburger" onclick="UI.toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div class="search-wrap">
+        <i class="fas fa-search search-ico"></i>
+        <input type="text" placeholder="Search courses, students, schools… (⌘K)" id="globalSearch" oninput="Search.query(this.value)">
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" onclick="UI.openDrawer()" title="Notifications">
+          <i class="fas fa-bell"></i><span class="notif-pip" id="notifPip"></span>
+        </button>
+        <button class="topbar-icon-btn" onclick="Toast.show('info','Messages','Messaging coming soon!')"><i class="fas fa-comment-dots"></i></button>
+        <div class="dropdown">
+          <button class="topbar-icon-btn" onclick="UI.toggleDropdown('topUserDD')">
+            <div class="u-avatar" style="width:28px;height:28px;font-size:11px;" id="topAvatar">RO</div>
+          </button>
+          <div class="dropdown-menu" id="topUserDD">
+            <div class="dd-header"><div class="dd-name" id="topDdName">Rock Okorie</div><div class="dd-sub">rock@dgei.edu</div></div>
+            <button class="dd-item"><i class="fas fa-user"></i> Profile</button>
+            <button class="dd-item" onclick="Router.go('settings')"><i class="fas fa-cog"></i> Settings</button>
+            <div class="dd-sep"></div>
+            <button class="dd-item danger" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT TABS -->
+    <div class="content">
+
+      <!-- ─── TAB: OVERVIEW ─── -->
+      <div id="tab-overview" class="ctab active">
+        <div class="ph">
+          <div class="ph-row">
+            <div><h1 id="dashGreeting">Good morning, Rock 👋</h1><p>Here's what's happening across your platform today</p></div>
+            <button class="btn btn-royal" onclick="Router.go('builder')"><i class="fas fa-plus"></i> New Course</button>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card card card-hover card-royal">
+            <div class="stat-ic royal"><i class="fas fa-users"></i></div>
+            <div><div class="stat-lbl-sm">Total Students</div><div class="stat-val" data-counter="8472">8,472</div><div class="stat-delta up"><i class="fas fa-arrow-up"></i> +12.4% this month</div></div>
+          </div>
+          <div class="stat-card card card-hover">
+            <div class="stat-ic aqua"><i class="fas fa-book-open"></i></div>
+            <div><div class="stat-lbl-sm">Active Courses</div><div class="stat-val">34</div><div class="stat-delta up"><i class="fas fa-arrow-up"></i> +3 this week</div></div>
+          </div>
+          <div class="stat-card card card-hover">
+            <div class="stat-ic amber"><i class="fas fa-wallet"></i></div>
+            <div><div class="stat-lbl-sm">Revenue (MTD)</div><div class="stat-val">₦2.4M</div><div class="stat-delta up"><i class="fas fa-arrow-up"></i> +28.1%</div></div>
+          </div>
+          <div class="stat-card card card-hover">
+            <div class="stat-ic emerald"><i class="fas fa-graduation-cap"></i></div>
+            <div><div class="stat-lbl-sm">Completions</div><div class="stat-val">1,203</div><div class="stat-delta down"><i class="fas fa-arrow-down"></i> -2.1% this week</div></div>
+          </div>
+        </div>
+
+        <div class="col-7-5" style="margin-bottom:18px;">
+          <!-- CHART -->
+          <div class="chart-panel card">
+            <div class="chart-panel-head">
+              <h3>Enrollment Trend</h3>
+              <div class="tab-pills">
+                <button class="tab-pill active" onclick="App.chartPeriod(this,'7d')">7D</button>
+                <button class="tab-pill" onclick="App.chartPeriod(this,'30d')">30D</button>
+                <button class="tab-pill" onclick="App.chartPeriod(this,'90d')">90D</button>
+              </div>
+            </div>
+            <svg class="chart-svg" viewBox="0 0 600 180" id="enrollChart">
+              <defs>
+                <linearGradient id="grad-royal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--royal-2)" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="var(--royal-2)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path class="c-area" id="chartArea" d="M0,150 L80,130 L160,110 L240,120 L320,80 L400,60 L480,40 L560,20 L560,180 L0,180 Z"/>
+              <path class="c-line" id="chartLine" d="M0,150 L80,130 L160,110 L240,120 L320,80 L400,60 L480,40 L560,20"/>
+              <circle class="c-dot" cx="0" cy="150" r="4"/><circle class="c-dot" cx="80" cy="130" r="4"/>
+              <circle class="c-dot" cx="160" cy="110" r="4"/><circle class="c-dot" cx="240" cy="120" r="4"/>
+              <circle class="c-dot" cx="320" cy="80" r="4"/><circle class="c-dot" cx="400" cy="60" r="4"/>
+              <circle class="c-dot" cx="480" cy="40" r="4"/><circle class="c-dot" cx="560" cy="20" r="4"/>
+              <text class="c-label" x="0" y="175">Mon</text><text class="c-label" x="76" y="175">Tue</text>
+              <text class="c-label" x="154" y="175">Wed</text><text class="c-label" x="230" y="175">Thu</text>
+              <text class="c-label" x="314" y="175">Fri</text><text class="c-label" x="395" y="175">Sat</text>
+              <text class="c-label" x="476" y="175">Sun</text>
+            </svg>
+          </div>
+          <!-- ACTIVITY -->
+          <div class="chart-panel card">
+            <div class="chart-panel-head"><h3>Live Activity</h3><span class="badge badge-emerald"><span class="dot-live"></span> Live</span></div>
+            <div class="feed" id="activityFeed"></div>
+          </div>
+        </div>
+
+        <!-- TOP COURSES TABLE -->
+        <div class="chart-panel card">
+          <div class="chart-panel-head">
+            <h3>Top Performing Courses</h3>
+            <button class="btn btn-ghost btn-sm" onclick="App.switchTabById('tab-courses')">View All <i class="fas fa-arrow-right"></i></button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="coursesTable"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: MY COURSES ─── -->
+      <div id="tab-courses" class="ctab">
+        <div class="ph"><div class="ph-row"><div><h1>My Courses</h1><p>Manage and track all your learning content</p></div><button class="btn btn-royal" onclick="Router.go('builder')"><i class="fas fa-plus"></i> Create Course</button></div></div>
+        <div class="course-grid" id="myCourseGrid"></div>
+      </div>
+
+      <!-- ─── TAB: PROGRESS ─── -->
+      <div id="tab-progress" class="ctab">
+        <div class="ph"><h1>Learning Progress</h1><p>Track your journey across all enrolled courses</p></div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card card"><div class="stat-ic amber"><i class="fas fa-fire"></i></div><div><div class="stat-lbl-sm">Day Streak</div><div class="stat-val">14</div></div></div>
+          <div class="stat-card card"><div class="stat-ic aqua"><i class="fas fa-clock"></i></div><div><div class="stat-lbl-sm">Hours Learned</div><div class="stat-val">87h</div></div></div>
+          <div class="stat-card card"><div class="stat-ic emerald"><i class="fas fa-check-circle"></i></div><div><div class="stat-lbl-sm">Lessons Done</div><div class="stat-val">234</div></div></div>
+        </div>
+        <div class="chart-panel card" style="margin-top:18px;">
+          <div class="chart-panel-head"><h3>Course Progress</h3></div>
+          <div style="display:flex;flex-direction:column;gap:20px;padding:4px 0;">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;"><span>Python for Beginners</span><span style="color:var(--royal-2);font-weight:700;">78%</span></div><div class="progress-track"><div class="progress-fill" style="width:78%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;"><span>Web Dev Bootcamp</span><span style="color:var(--royal-2);font-weight:700;">45%</span></div><div class="progress-track"><div class="progress-fill" style="width:45%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;"><span>UI/UX Design</span><span style="color:var(--royal-2);font-weight:700;">30%</span></div><div class="progress-track"><div class="progress-fill" style="width:30%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;"><span>Data Science Basics</span><span style="color:var(--emerald);font-weight:700;">100% ✓</span></div><div class="progress-track"><div class="progress-fill success" style="width:100%"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: CERTIFICATES ─── -->
+      <div id="tab-certs" class="ctab">
+        <div class="ph"><h1>Certificates</h1><p>Download and share your earned credentials</p></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;" id="certGrid"></div>
+      </div>
+
+      <!-- ─── TAB: COMMUNITY ─── -->
+      <div id="tab-community" class="ctab">
+        <div class="ph"><h1>Community</h1><p>Connect, discuss, and learn together</p></div>
+        <div class="two-col">
+          <div class="chart-panel card">
+            <div class="chart-panel-head"><h3>Discussion Boards</h3><button class="btn btn-royal btn-sm" onclick="Toast.show('success','Post Created','Your discussion is now live!')"><i class="fas fa-plus"></i> New Post</button></div>
+            <div class="feed">
+              <div class="feed-item" style="cursor:pointer;" onclick="Toast.show('info','Discussion','Opening thread…')"><div class="feed-ic" style="background:var(--royal-dim);color:var(--royal-2);"><i class="fas fa-comment"></i></div><div class="feed-text"><p><strong>How to handle async/await in JS?</strong></p><p>Posted by Emeka · 24 replies</p><div class="feed-time">2 hours ago</div></div></div>
+              <div class="feed-item" style="cursor:pointer;"><div class="feed-ic" style="background:var(--aqua-dim);color:var(--aqua);"><i class="fas fa-question-circle"></i></div><div class="feed-text"><p><strong>Best resources for ML in 2025?</strong></p><p>Posted by Grace · 18 replies</p><div class="feed-time">5 hours ago</div></div></div>
+              <div class="feed-item" style="cursor:pointer;"><div class="feed-ic" style="background:var(--emerald-dim);color:var(--emerald);"><i class="fas fa-lightbulb"></i></div><div class="feed-text"><p><strong>I built my first SaaS — AMA!</strong></p><p>Posted by Kemi · 56 replies</p><div class="feed-time">1 day ago</div></div></div>
+            </div>
+          </div>
+          <div class="chart-panel card">
+            <div class="chart-panel-head"><h3>Top Learners</h3></div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;gap:12px;"><span style="font-family:var(--f-display);font-weight:800;font-size:16px;color:var(--amber);width:22px;">1</span><div class="u-avatar" style="background:linear-gradient(135deg,var(--amber),#EF4444);">AA</div><div style="flex:1;"><div style="font-weight:700;font-size:13px;">Adaeze A.</div><div style="font-size:12px;color:var(--t3);">1,234 XP · 8 courses</div></div><span class="badge badge-amber">🥇 Gold</span></div>
+              <div style="display:flex;align-items:center;gap:12px;"><span style="font-family:var(--f-display);font-weight:800;font-size:16px;color:var(--t2);width:22px;">2</span><div class="u-avatar" style="background:linear-gradient(135deg,var(--royal),var(--aqua));">CI</div><div style="flex:1;"><div style="font-weight:700;font-size:13px;">Chidi I.</div><div style="font-size:12px;color:var(--t3);">980 XP · 6 courses</div></div><span class="badge badge-muted">🥈 Silver</span></div>
+              <div style="display:flex;align-items:center;gap:12px;"><span style="font-family:var(--f-display);font-weight:800;font-size:16px;color:var(--t3);width:22px;">3</span><div class="u-avatar" style="background:linear-gradient(135deg,var(--emerald),var(--royal));">FN</div><div style="flex:1;"><div style="font-weight:700;font-size:13px;">Fatima N.</div><div style="font-size:12px;color:var(--t3);">876 XP · 5 courses</div></div><span class="badge badge-aqua">🥉 Bronze</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TAB: EARNINGS ─── -->
+      <div id="tab-earnings" class="ctab">
+        <div class="ph"><h1>Earnings</h1><p>Track your revenue and payouts</p></div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card card"><div class="stat-ic emerald"><i class="fas fa-wallet"></i></div><div><div class="stat-lbl-sm">Available Balance</div><div class="stat-val">₦842,000</div></div></div>
+          <div class="stat-card card"><div class="stat-ic amber"><i class="fas fa-chart-line"></i></div><div><div class="stat-lbl-sm">Total Earned</div><div class="stat-val">₦4.2M</div></div></div>
+          <div class="stat-card card"><div class="stat-ic royal"><i class="fas fa-arrow-up"></i></div><div><div class="stat-lbl-sm">This Month</div><div class="stat-val">₦310k</div></div></div>
+        </div>
+        <div class="chart-panel card" style="margin-top:18px;">
+          <div class="chart-panel-head"><h3>Transaction History</h3><button class="btn btn-royal btn-sm" onclick="Toast.show('success','Payout','Withdrawal request submitted!')"><i class="fas fa-money-bill"></i> Withdraw</button></div>
+          <div class="table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Course</th><th>Gross</th><th>Fee (10%)</th><th>Net</th><th>Status</th></tr></thead><tbody><tr><td>Mar 28</td><td class="td-main">Python for Beginners</td><td>₦15,000</td><td>₦1,500</td><td>₦13,500</td><td><span class="badge badge-emerald">Paid</span></td></tr><tr><td>Mar 27</td><td class="td-main">Web Dev Bootcamp</td><td>₦20,000</td><td>₦2,000</td><td>₦18,000</td><td><span class="badge badge-emerald">Paid</span></td></tr><tr><td>Mar 26</td><td class="td-main">Data Science</td><td>₦18,000</td><td>₦1,800</td><td>₦16,200</td><td><span class="badge badge-amber">Pending</span></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <button class="bnav-item active" data-tab="tab-overview" onclick="App.mobileNav(this)"><i class="fas fa-home"></i>Home</button>
+        <button class="bnav-item" data-tab="tab-courses" onclick="App.mobileNav(this)"><i class="fas fa-book"></i>Courses</button>
+        <button class="bnav-item" onclick="Router.go('marketplace')"><i class="fas fa-store"></i>Market</button>
+        <button class="bnav-item" data-tab="tab-certs" onclick="App.mobileNav(this)"><i class="fas fa-certificate"></i>Certs</button>
+        <button class="bnav-item" onclick="Router.go('settings')"><i class="fas fa-cog"></i>Settings</button>
+      </div>
+    </nav>
+  </div><!-- /main -->
+</div><!-- /page-dashboard -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: SCHOOL
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-school" class="app-page">
+  <aside class="sidebar" id="schoolSidebar">
+    <div class="sidebar-logo-area"><div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">School</div>
+      <button class="sidebar-link active" data-page="school" data-tab="stab-dash" onclick="School.tab(this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+      <button class="sidebar-link" data-page="school" data-tab="stab-fac" onclick="School.tab(this)"><i class="fas fa-sitemap"></i> Faculties</button>
+      <button class="sidebar-link" data-page="school" data-tab="stab-students" onclick="School.tab(this)"><i class="fas fa-user-graduate"></i> Students</button>
+      <button class="sidebar-link" data-page="school" data-tab="stab-analytics" onclick="School.tab(this)"><i class="fas fa-chart-bar"></i> Analytics</button>
+      <button class="sidebar-link" onclick="Router.go('dashboard')"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <div class="sidebar-footer"><div class="sidebar-user" style="cursor:default;"><div class="u-avatar" style="background:linear-gradient(135deg,var(--amber),var(--crimson));">LS</div><div><div class="u-name">Lagos Tech School</div><div class="u-role">School Dashboard</div></div></div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar-hamburger" onclick="UI.toggleSidebarById('schoolSidebar')"><i class="fas fa-bars"></i></button>
+      <div class="search-wrap"><i class="fas fa-search search-ico"></i><input type="text" placeholder="Search school…"></div>
+      <div class="topbar-right"><button class="btn btn-royal" onclick="UI.openModal('modalFaculty')"><i class="fas fa-plus"></i> Add Faculty</button></div>
+    </header>
+    <div class="content">
+      <div id="stab-dash" class="ctab active">
+        <div class="ph"><h1>🏫 Lagos Tech School</h1><p>Manage your institution's academic structure</p></div>
+        <div class="stats-row"><div class="stat-card card"><div class="stat-ic royal"><i class="fas fa-sitemap"></i></div><div><div class="stat-lbl-sm">Faculties</div><div class="stat-val">4</div></div></div><div class="stat-card card"><div class="stat-ic aqua"><i class="fas fa-building"></i></div><div><div class="stat-lbl-sm">Departments</div><div class="stat-val">16</div></div></div><div class="stat-card card"><div class="stat-ic amber"><i class="fas fa-book"></i></div><div><div class="stat-lbl-sm">Courses</div><div class="stat-val">84</div></div></div><div class="stat-card card"><div class="stat-ic emerald"><i class="fas fa-users"></i></div><div><div class="stat-lbl-sm">Students</div><div class="stat-val">3,240</div></div></div></div>
+      </div>
+      <div id="stab-fac" class="ctab">
+        <div class="ph"><div class="ph-row"><div><h1>Faculties & Departments</h1><p>Manage your academic structure</p></div><button class="btn btn-royal" onclick="UI.openModal('modalFaculty')"><i class="fas fa-plus"></i> Add Faculty</button></div></div>
+        <div id="facultyList"></div>
+      </div>
+      <div id="stab-students" class="ctab">
+        <div class="ph"><div class="ph-row"><div><h1>Students</h1><p>3,240 enrolled</p></div><button class="btn btn-ghost" onclick="Toast.show('info','Import','CSV import coming soon!')"><i class="fas fa-file-import"></i> Import CSV</button></div></div>
+        <div class="chart-panel card"><div class="chart-panel-head"><h3>All Students</h3><select class="input" style="width:auto;padding:7px 32px 7px 12px;font-size:13px;"><option>All Departments</option><option>Computer Science</option><option>Business Admin</option></select></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Student</th><th>Department</th><th>Courses</th><th>Progress</th><th>Joined</th><th>Status</th></tr></thead><tbody><tr><td class="td-main">Amaka Okonkwo</td><td>Computer Science</td><td>4</td><td><div class="progress-track" style="width:90px;"><div class="progress-fill" style="width:82%"></div></div></td><td>Jan 2025</td><td><span class="badge badge-emerald">Active</span></td></tr><tr><td class="td-main">Emmanuel Ibe</td><td>Cybersecurity</td><td>3</td><td><div class="progress-track" style="width:90px;"><div class="progress-fill" style="width:60%"></div></div></td><td>Feb 2025</td><td><span class="badge badge-emerald">Active</span></td></tr><tr><td class="td-main">Chidi Nweze</td><td>Data Engineering</td><td>2</td><td><div class="progress-track" style="width:90px;"><div class="progress-fill" style="width:30%"></div></div></td><td>Mar 2025</td><td><span class="badge badge-amber">Inactive</span></td></tr></tbody></table></div></div>
+      </div>
+      <div id="stab-analytics" class="ctab">
+        <div class="ph"><h1>Analytics</h1><p>Deep insights into your school's performance</p></div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);"><div class="stat-card card"><div class="stat-ic emerald"><i class="fas fa-percentage"></i></div><div><div class="stat-lbl-sm">Avg Completion</div><div class="stat-val">64%</div><div class="stat-delta up"><i class="fas fa-arrow-up"></i> +8% this month</div></div></div><div class="stat-card card"><div class="stat-ic amber"><i class="fas fa-star"></i></div><div><div class="stat-lbl-sm">Avg Rating</div><div class="stat-val">4.7★</div></div></div><div class="stat-card card"><div class="stat-ic royal"><i class="fas fa-user-plus"></i></div><div><div class="stat-lbl-sm">New This Month</div><div class="stat-val">+342</div></div></div></div>
+        <div class="chart-panel card" style="margin-top:18px;"><div class="chart-panel-head"><h3>Enrollment by Faculty</h3></div><div style="display:flex;flex-direction:column;gap:16px;padding:4px 0;"><div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;"><span>Computing & Technology</span><span style="color:var(--royal-2);font-weight:700;">38%</span></div><div class="progress-track"><div class="progress-fill" style="width:38%"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;"><span>Business & Finance</span><span style="color:var(--aqua);font-weight:700;">27%</span></div><div class="progress-track"><div class="progress-fill" style="width:27%;background:linear-gradient(90deg,var(--aqua),#0891B2)"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;"><span>Design & Creative</span><span style="color:var(--amber);font-weight:700;">20%</span></div><div class="progress-track"><div class="progress-fill" style="width:20%;background:linear-gradient(90deg,var(--amber),#EF4444)"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;"><span>Health & Medicine</span><span style="color:var(--emerald);font-weight:700;">15%</span></div><div class="progress-track"><div class="progress-fill success" style="width:15%"></div></div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: COURSE BUILDER
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-builder" class="app-page">
+  <aside class="sidebar">
+    <div class="sidebar-logo-area"><div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Course Builder</div>
+      <button class="sidebar-link active"><i class="fas fa-info-circle"></i> Basic Info</button>
+      <button class="sidebar-link"><i class="fas fa-layer-group"></i> Curriculum</button>
+      <button class="sidebar-link"><i class="fas fa-tag"></i> Pricing</button>
+      <button class="sidebar-link"><i class="fas fa-bullhorn"></i> Marketing</button>
+      <button class="sidebar-link" onclick="Router.go('dashboard')"><i class="fas fa-arrow-left"></i> Exit Builder</button>
+    </div>
+    <div class="sidebar-footer" style="padding:12px;"><div style="padding:12px;background:var(--royal-dim);border:1px solid rgba(91,108,249,0.2);border-radius:var(--radius-md);"><div style="font-size:12px;font-weight:700;color:var(--royal-2);margin-bottom:6px;">Build Progress</div><div class="progress-track" style="margin-bottom:6px;"><div class="progress-fill" style="width:75%"></div></div><div style="font-size:11px;color:var(--t3);">75% — Add thumbnail</div></div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div style="font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--t2);">Course Builder</div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" onclick="Builder.saveDraft()">Save Draft</button>
+        <button class="btn btn-royal" onclick="Builder.publish()"><i class="fas fa-rocket"></i> Publish</button>
+      </div>
+    </header>
+    <div class="content">
+      <div class="ph"><h1>Create New Course</h1><p>Build something extraordinary for your students</p></div>
+      <div class="builder-layout">
+        <div>
+          <div class="chart-panel card" style="margin-bottom:18px;">
+            <h3 style="margin-bottom:22px;font-size:16px;">Basic Information</h3>
+            <div class="field"><label>Course Title</label><input class="input" type="text" placeholder="e.g. Python for Complete Beginners" oninput="Builder.autoSave()"></div>
+            <div class="field"><label>Description</label><textarea class="input" placeholder="What will students learn? Why take this course?" style="min-height:110px;"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="field"><label>Category</label><select class="input"><option>Programming</option><option>Web Dev</option><option>Data Science</option><option>Design</option><option>Business</option></select></div>
+              <div class="field"><label>Level</label><select class="input"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="field"><label>Language</label><select class="input"><option>English</option><option>Yoruba</option><option>Hausa</option><option>Igbo</option><option>French</option></select></div>
+              <div class="field"><label>Certificate</label><select class="input"><option>Issue Certificate</option><option>No Certificate</option></select></div>
+            </div>
+          </div>
+          <div class="chart-panel card">
+            <div class="chart-panel-head"><h3>Curriculum</h3><button class="btn btn-royal btn-sm" onclick="Builder.addSection()"><i class="fas fa-plus"></i> Add Section</button></div>
+            <div id="curriculumEditor">
+              <div class="section-block" style="margin-bottom:12px;">
+                <div class="section-header-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><span style="font-weight:700;font-size:14px;flex:1;">Section 1: Getting Started</span><span style="font-size:12px;color:var(--t3);margin-right:12px;">3 lessons</span><i class="fas fa-chevron-down" style="color:var(--t3);cursor:pointer;" onclick="Builder.toggleSection(this)"></i></div>
+                <div class="lesson-list" style="padding:8px 0 0 32px;">
+                  <div class="lesson-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><i class="fas fa-play-circle" style="color:var(--royal-2);font-size:13px;"></i><span style="flex:1;">Welcome to the Course</span><span style="font-size:12px;color:var(--t3);">5:30</span></div>
+                  <div class="lesson-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><i class="fas fa-play-circle" style="color:var(--royal-2);font-size:13px;"></i><span style="flex:1;">Setting Up Your Environment</span><span style="font-size:12px;color:var(--t3);">12:15</span></div>
+                  <div class="lesson-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><i class="fas fa-file-alt" style="color:var(--amber);font-size:13px;"></i><span style="flex:1;">Quiz: Getting Started</span><span style="font-size:12px;color:var(--t3);">Quiz</span></div>
+                  <button class="btn btn-ghost btn-sm" style="margin-top:6px;color:var(--royal-2);" onclick="Toast.show('info','Lesson','Lesson editor opening…')"><i class="fas fa-plus"></i> Add Lesson</button>
+                </div>
+              </div>
+              <div class="section-block">
+                <div class="section-header-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><span style="font-weight:700;font-size:14px;flex:1;">Section 2: Core Concepts</span><span style="font-size:12px;color:var(--t3);margin-right:12px;">2 lessons</span><i class="fas fa-chevron-down" style="color:var(--t3);cursor:pointer;" onclick="Builder.toggleSection(this)"></i></div>
+                <div class="lesson-list" style="display:none;padding:8px 0 0 32px;">
+                  <div class="lesson-row"><i class="drag-handle-icon fas fa-grip-vertical"></i><i class="fas fa-play-circle" style="color:var(--royal-2);font-size:13px;"></i><span style="flex:1;">Variables & Data Types</span><span style="font-size:12px;color:var(--t3);">18:40</span></div>
+                  <button class="btn btn-ghost btn-sm" style="margin-top:6px;color:var(--royal-2);" onclick="Toast.show('info','Lesson','Lesson editor opening…')"><i class="fas fa-plus"></i> Add Lesson</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- SIDEBAR PANEL -->
+        <div>
+          <div class="chart-panel card" style="margin-bottom:16px;">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:14px;">Course Thumbnail</h4>
+            <div style="height:140px;background:var(--ink-4);border:2px dashed var(--rim);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.2s;" onclick="Toast.show('info','Upload','File picker would open here')" onmouseenter="this.style.borderColor='var(--royal)'" onmouseleave="this.style.borderColor=''"><i class="fas fa-cloud-upload-alt" style="font-size:28px;color:var(--t3);margin-bottom:10px;"></i><p style="font-size:13px;color:var(--t3);">Click to upload</p><p style="font-size:11px;color:var(--t4);">JPG, PNG · 1280×720</p></div>
+          </div>
+          <div class="chart-panel card" style="margin-bottom:16px;">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:14px;">Pricing</h4>
+            <div class="field"><label>Type</label><select class="input" onchange="Builder.pricingType(this)"><option value="paid">Paid</option><option value="free">Free</option></select></div>
+            <div class="field" id="priceField"><label>Price (₦)</label><input class="input" type="number" placeholder="15000" min="0"></div>
+          </div>
+          <div class="chart-panel card">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:14px;">Checklist</h4>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;"><span style="color:var(--t2);">Basic Info</span><i class="fas fa-check-circle" style="color:var(--emerald);"></i></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;"><span style="color:var(--t2);">Curriculum</span><i class="fas fa-check-circle" style="color:var(--emerald);"></i></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;"><span style="color:var(--t2);">Thumbnail</span><i class="fas fa-circle" style="color:var(--t4);font-size:9px;"></i></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;"><span style="color:var(--t2);">Pricing</span><i class="fas fa-check-circle" style="color:var(--emerald);"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: MARKETPLACE
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-marketplace" class="app-page">
+  <aside class="sidebar" id="marketSidebar">
+    <div class="sidebar-logo-area"><div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Marketplace</div>
+      <button class="sidebar-link active"><i class="fas fa-fire"></i> Trending</button>
+      <button class="sidebar-link"><i class="fas fa-star"></i> Top Rated</button>
+      <button class="sidebar-link"><i class="fas fa-tag"></i> Free Courses</button>
+      <button class="sidebar-link"><i class="fas fa-certificate"></i> Certified</button>
+      <button class="sidebar-link" onclick="Router.go('dashboard')"><i class="fas fa-arrow-left"></i> Dashboard</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar-hamburger" onclick="UI.toggleSidebarById('marketSidebar')"><i class="fas fa-bars"></i></button>
+      <div class="search-wrap" style="max-width:580px;"><i class="fas fa-search search-ico"></i><input type="text" placeholder="Search 4,800+ courses…" oninput="Marketplace.search(this.value)"></div>
+      <div class="topbar-right"><button class="topbar-icon-btn" onclick="UI.openDrawer()"><i class="fas fa-bell"></i><span class="notif-pip"></span></button></div>
+    </header>
+    <div class="content">
+      <div class="ph"><h1>Course Marketplace</h1><p>4,800+ courses from Africa's top educators</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;" id="categoryPills">
+        <button class="btn btn-royal btn-sm" data-cat="all" onclick="Marketplace.filter(this)">All</button>
+        <button class="btn btn-ghost btn-sm" data-cat="programming" onclick="Marketplace.filter(this)">Programming</button>
+        <button class="btn btn-ghost btn-sm" data-cat="design" onclick="Marketplace.filter(this)">Design</button>
+        <button class="btn btn-ghost btn-sm" data-cat="business" onclick="Marketplace.filter(this)">Business</button>
+        <button class="btn btn-ghost btn-sm" data-cat="datascience" onclick="Marketplace.filter(this)">Data Science</button>
+        <button class="btn btn-ghost btn-sm" data-cat="health" onclick="Marketplace.filter(this)">Health</button>
+      </div>
+      <div class="market-layout">
+        <div class="filter-block card">
+          <div class="filter-group"><h4>Price</h4><label class="filter-check"><input type="checkbox" checked><label>Free</label></label><label class="filter-check"><input type="checkbox" checked><label>Paid</label></label><label class="filter-check"><input type="checkbox"><label>Subscription</label></label></div>
+          <div style="height:1px;background:var(--rim);margin:16px 0;"></div>
+          <div class="filter-group"><h4>Rating</h4><label class="filter-check"><input type="checkbox"><label>5.0 ★</label></label><label class="filter-check"><input type="checkbox" checked><label>4.0+ ★</label></label><label class="filter-check"><input type="checkbox"><label>3.0+ ★</label></label></div>
+          <div style="height:1px;background:var(--rim);margin:16px 0;"></div>
+          <div class="filter-group"><h4>Level</h4><label class="filter-check"><input type="checkbox"><label>Beginner</label></label><label class="filter-check"><input type="checkbox"><label>Intermediate</label></label><label class="filter-check"><input type="checkbox"><label>Advanced</label></label></div>
+          <div style="height:1px;background:var(--rim);margin:16px 0;"></div>
+          <div class="filter-group"><h4>Price Range (₦)</h4><input type="range" min="0" max="100000" value="50000" oninput="document.getElementById('priceRangeVal').textContent='₦'+Number(this.value).toLocaleString()"><p id="priceRangeVal" style="font-size:12px;color:var(--t3);margin-top:6px;">₦50,000</p></div>
+          <button class="btn btn-royal" style="width:100%;" onclick="Toast.show('success','Filters','Results updated!')">Apply Filters</button>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;"><p style="font-size:14px;color:var(--t2);">Showing <strong style="color:var(--t1);" id="courseCount">2,840</strong> courses</p><select class="input" style="width:auto;padding:7px 32px 7px 12px;font-size:13px;"><option>Most Popular</option><option>Highest Rated</option><option>Newest</option><option>Price: Low to High</option></select></div>
+          <div class="course-grid" id="marketGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: SETTINGS
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-settings" class="app-page">
+  <aside class="sidebar">
+    <div class="sidebar-logo-area"><div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei">EI</span></div></div>
+    <div class="sidebar-group"><button class="sidebar-link" onclick="Router.go('dashboard')"><i class="fas fa-arrow-left"></i> Back</button></div>
+    <div class="sidebar-footer"><div class="sidebar-user" style="cursor:default;"><div class="u-avatar">RO</div><div><div class="u-name">Rock Okorie</div><div class="u-role">Pro Plan</div></div></div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div style="flex:1;"></div><button class="btn btn-royal" onclick="Settings.save()"><i class="fas fa-save"></i> Save Changes</button></header>
+    <div class="content">
+      <div class="ph"><h1>Settings</h1><p>Manage your account, security, and preferences</p></div>
+      <div class="settings-layout">
+        <div class="card" style="padding:10px;align-self:start;">
+          <button class="settings-nav-item active" onclick="Settings.tab(this,'ss-profile')"><i class="fas fa-user"></i> Profile</button>
+          <button class="settings-nav-item" onclick="Settings.tab(this,'ss-security')"><i class="fas fa-lock"></i> Security</button>
+          <button class="settings-nav-item" onclick="Settings.tab(this,'ss-payment')"><i class="fas fa-credit-card"></i> Payment</button>
+          <button class="settings-nav-item" onclick="Settings.tab(this,'ss-notifs')"><i class="fas fa-bell"></i> Notifications</button>
+          <button class="settings-nav-item" onclick="Settings.tab(this,'ss-appear')"><i class="fas fa-palette"></i> Appearance</button>
+        </div>
+        <div>
+          <div id="ss-profile" class="setting-section-content active card" style="padding:30px;">
+            <h3 style="margin-bottom:22px;">Profile Information</h3>
+            <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px;"><div class="u-avatar" style="width:72px;height:72px;font-size:24px;">RO</div><button class="btn btn-ghost" onclick="Toast.show('info','Upload','Photo upload coming…')">Change Photo</button></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"><div class="field"><label>First Name</label><input class="input" value="Rock"></div><div class="field"><label>Last Name</label><input class="input" value="Okorie"></div></div>
+            <div class="field"><label>Email</label><input class="input" type="email" value="rock@dgei.edu"></div>
+            <div class="field"><label>Bio</label><textarea class="input" placeholder="Tell students about yourself…"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"><div class="field"><label>Country</label><select class="input"><option>Nigeria</option><option>Ghana</option><option>Kenya</option></select></div><div class="field"><label>Language</label><select class="input"><option>English</option><option>French</option></select></div></div>
+          </div>
+          <div id="ss-security" class="setting-section-content card" style="padding:30px;">
+            <h3 style="margin-bottom:22px;">Security</h3>
+            <div class="field"><label>Current Password</label><input class="input" type="password" placeholder="••••••••"></div>
+            <div class="field"><label>New Password</label><input class="input" type="password" placeholder="At least 8 characters"></div>
+            <div class="field"><label>Confirm Password</label><input class="input" type="password" placeholder="••••••••"></div>
+            <button class="btn btn-royal" onclick="Toast.show('success','Password','Password updated!')">Update Password</button>
+            <div style="height:1px;background:var(--rim);margin:28px 0;"></div>
+            <h4 style="margin-bottom:16px;">Two-Factor Authentication</h4>
+            <div class="toggle-row"><div class="toggle-lbl"><h5>Enable 2FA</h5><p>Add extra security to your account</p></div><label class="toggle"><input type="checkbox" onchange="Toast.show('success','2FA','Two-factor '+(this.checked?'enabled':'disabled'))"><span class="toggle-track"></span></label></div>
+          </div>
+          <div id="ss-payment" class="setting-section-content card" style="padding:30px;">
+            <h3 style="margin-bottom:22px;">Payment Methods</h3>
+            <div style="padding:16px;background:var(--ink-4);border:1px solid var(--rim);border-radius:var(--radius-md);display:flex;align-items:center;gap:14px;margin-bottom:16px;"><i class="fab fa-cc-visa" style="font-size:28px;color:var(--royal-2);"></i><div style="flex:1;"><div style="font-weight:700;font-size:14px;">Visa •••• 4242</div><div style="font-size:12px;color:var(--t3);">Expires 12/26</div></div><span class="badge badge-emerald">Default</span></div>
+            <button class="btn btn-ghost" onclick="Toast.show('info','Card','Add card form coming…')"><i class="fas fa-plus"></i> Add Payment Method</button>
+            <div style="height:1px;background:var(--rim);margin:28px 0;"></div>
+            <h4 style="margin-bottom:18px;">Payout Settings</h4>
+            <div class="field"><label>Bank Name</label><select class="input"><option>First Bank Nigeria</option><option>GTBank</option><option>Access Bank</option></select></div>
+            <div class="field"><label>Account Number</label><input class="input" placeholder="0123456789"></div>
+            <div class="field"><label>Account Name</label><input class="input" placeholder="Rock Okorie"></div>
+          </div>
+          <div id="ss-notifs" class="setting-section-content card" style="padding:30px;">
+            <h3 style="margin-bottom:22px;">Notification Preferences</h3>
+            <div class="toggle-row"><div class="toggle-lbl"><h5>New Enrollment</h5><p>When a student enrolls in your course</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+            <div class="toggle-row"><div class="toggle-lbl"><h5>Course Reviews</h5><p>When a student leaves a review</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+            <div class="toggle-row"><div class="toggle-lbl"><h5>Payment Received</h5><p>When you receive a payout</p></div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+            <div class="toggle-row"><div class="toggle-lbl"><h5>Platform Updates</h5><p>News, features, and announcements</p></div><label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label></div>
+          </div>
+          <div id="ss-appear" class="setting-section-content card" style="padding:30px;">
+            <h3 style="margin-bottom:22px;">Appearance</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><div style="padding:20px;border:2px solid var(--royal);border-radius:var(--radius-md);text-align:center;cursor:pointer;background:var(--royal-dim);" onclick="Toast.show('info','Theme','Dark mode is active')"><div style="font-size:24px;margin-bottom:8px;">🌙</div><div style="font-weight:700;font-size:14px;">Dark Mode</div><div style="font-size:12px;color:var(--t3);">Active</div></div><div style="padding:20px;border:1px solid var(--rim);border-radius:var(--radius-md);text-align:center;cursor:pointer;" onclick="Toast.show('info','Theme','Light mode coming soon!')"><div style="font-size:24px;margin-bottom:8px;">☀️</div><div style="font-weight:700;font-size:14px;">Light Mode</div><div style="font-size:12px;color:var(--t3);">Coming Soon</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE: ADMIN
+═══════════════════════════════════════════════════════════════ -->
+<div id="page-admin" class="app-page">
+  <aside class="sidebar" id="adminSidebar">
+    <div class="sidebar-logo-area"><div class="logo" style="font-size:18px;"><span class="logo-dg">DG</span><span class="logo-ei" style="background:linear-gradient(135deg,var(--crimson),var(--amber));-webkit-background-clip:text;">EI</span></div><span class="badge badge-crimson" style="font-size:10px;">ADMIN</span></div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">Admin Panel</div>
+      <button class="sidebar-link active" data-tab="atab-overview" onclick="Admin.tab(this)"><i class="fas fa-tachometer-alt"></i> Overview <span class="link-badge">8</span></button>
+      <button class="sidebar-link" data-tab="atab-users" onclick="Admin.tab(this)"><i class="fas fa-users"></i> Users</button>
+      <button class="sidebar-link" data-tab="atab-schools" onclick="Admin.tab(this)"><i class="fas fa-university"></i> Schools</button>
+      <button class="sidebar-link" data-tab="atab-courses" onclick="Admin.tab(this)"><i class="fas fa-book"></i> Course Review</button>
+      <button class="sidebar-link" onclick="Router.go('dashboard')"><i class="fas fa-arrow-left"></i> Exit Admin</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar-hamburger" onclick="UI.toggleSidebarById('adminSidebar')"><i class="fas fa-bars"></i></button>
+      <div style="flex:1;"></div>
+      <div class="topbar-right"><span style="font-size:12px;padding:6px 12px;background:var(--crimson-dim);border:1px solid rgba(255,77,106,0.2);border-radius:var(--radius-sm);color:var(--crimson);font-weight:700;">⚠ Admin Access</span></div>
+    </header>
+    <div class="content">
+      <div id="atab-overview" class="ctab active">
+        <div class="ph"><h1>🛡️ Admin Dashboard</h1><p>Platform-wide management and oversight</p></div>
+        <div class="stats-row"><div class="stat-card card"><div class="stat-ic royal"><i class="fas fa-users"></i></div><div><div class="stat-lbl-sm">Total Users</div><div class="stat-val">120,472</div><div class="stat-delta up"><i class="fas fa-arrow-up"></i> +2,400 this week</div></div></div><div class="stat-card card"><div class="stat-ic aqua"><i class="fas fa-university"></i></div><div><div class="stat-lbl-sm">Active Schools</div><div class="stat-val">340</div></div></div><div class="stat-card card"><div class="stat-ic amber"><i class="fas fa-book"></i></div><div><div class="stat-lbl-sm">Total Courses</div><div class="stat-val">4,812</div></div></div><div class="stat-card card"><div class="stat-ic emerald"><i class="fas fa-globe"></i></div><div><div class="stat-lbl-sm">Countries</div><div class="stat-val">42</div></div></div></div>
+        <div class="chart-panel card" style="margin-top:18px;"><div class="chart-panel-head"><h3>Pending Approvals</h3><span class="badge badge-amber">8 Pending</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Type</th><th>Submitted By</th><th>Date</th><th>Actions</th></tr></thead><tbody><tr><td class="td-main">Lagos Tech University</td><td><span class="badge badge-aqua">School</span></td><td>Emeka O.</td><td>Mar 28</td><td class="tbl-actions"><button class="tbl-btn tbl-btn-approve" onclick="Admin.approve(this,'School')">Approve</button><button class="tbl-btn tbl-btn-reject" onclick="Admin.reject(this)">Reject</button></td></tr><tr><td class="td-main">Machine Learning Advanced</td><td><span class="badge badge-royal">Course</span></td><td>Grace A.</td><td>Mar 27</td><td class="tbl-actions"><button class="tbl-btn tbl-btn-approve" onclick="Admin.approve(this,'Course')">Approve</button><button class="tbl-btn tbl-btn-reject" onclick="Admin.reject(this)">Reject</button></td></tr><tr><td class="td-main">Abuja Design Academy</td><td><span class="badge badge-aqua">School</span></td><td>Kemi B.</td><td>Mar 26</td><td class="tbl-actions"><button class="tbl-btn tbl-btn-approve" onclick="Admin.approve(this,'School')">Approve</button><button class="tbl-btn tbl-btn-reject" onclick="Admin.reject(this)">Reject</button></td></tr></tbody></table></div></div>
+      </div>
+      <div id="atab-users" class="ctab"><div class="ph"><h1>User Management</h1><p>120,472 registered users</p></div><div class="chart-panel card"><div class="chart-panel-head"><h3>All Users</h3><div style="display:flex;gap:8px;"><input class="input" placeholder="Search users…" style="padding:7px 12px;font-size:13px;"><select class="input" style="width:auto;padding:7px 32px 7px 12px;font-size:13px;"><option>All Roles</option><option>Student</option><option>Teacher</option><option>School Owner</option></select></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>User</th><th>Role</th><th>Courses</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr><td class="td-main">Amaka Okonkwo</td><td><span class="badge role-student">Student</span></td><td>4</td><td>Jan 2025</td><td><span class="badge badge-emerald">Active</span></td><td class="tbl-actions"><button class="tbl-btn tbl-btn-view" onclick="Toast.show('info','Profile','Viewing user…')">View</button><button class="tbl-btn tbl-btn-reject" onclick="Toast.show('error','Suspended','User suspended')">Suspend</button></td></tr><tr><td class="td-main">Emmanuel Ibe</td><td><span class="badge role-teacher">Teacher</span></td><td>6</td><td>Feb 2025</td><td><span class="badge badge-emerald">Active</span></td><td class="tbl-actions"><button class="tbl-btn tbl-btn-view">View</button><button class="tbl-btn tbl-btn-reject">Suspend</button></td></tr><tr><td class="td-main">Fatima Abubakar</td><td><span class="badge role-owner">Owner</span></td><td>—</td><td>Nov 2024</td><td><span class="badge badge-emerald">Active</span></td><td class="tbl-actions"><button class="tbl-btn tbl-btn-view">View</button><button class="tbl-btn tbl-btn-reject">Suspend</button></td></tr></tbody></table></div></div></div>
+      <div id="atab-schools" class="ctab"><div class="ph"><h1>School Management</h1><p>340 active schools across 42 countries</p></div><div class="chart-panel card"><div class="chart-panel-head"><h3>All Schools</h3></div><div class="table-wrap"><table class="data-table"><thead><tr><th>School</th><th>Owner</th><th>Students</th><th>Courses</th><th>Country</th><th>Status</th></tr></thead><tbody><tr><td class="td-main">Lagos Tech School</td><td>Rock O.</td><td>3,240</td><td>84</td><td>🇳🇬 Nigeria</td><td><span class="badge badge-emerald">Verified</span></td></tr><tr><td class="td-main">Nairobi Digital Hub</td><td>James K.</td><td>1,890</td><td>42</td><td>🇰🇪 Kenya</td><td><span class="badge badge-emerald">Verified</span></td></tr><tr><td class="td-main">Accra Learn Academy</td><td>Ama O.</td><td>980</td><td>28</td><td>🇬🇭 Ghana</td><td><span class="badge badge-amber">Pending</span></td></tr></tbody></table></div></div></div>
+      <div id="atab-courses" class="ctab"><div class="ph"><h1>Course Review</h1><p>Review and approve courses before they go live</p></div><div class="chart-panel card"><div class="chart-panel-head"><h3>Pending Review</h3></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Course</th><th>Teacher</th><th>Category</th><th>Price</th><th>Submitted</th><th>Actions</th></tr></thead><tbody><tr><td class="td-main">Advanced ML with TensorFlow</td><td>Grace A.</td><td>AI/ML</td><td>₦30,000</td><td>Mar 27</td><td class="tbl-actions"><button class="tbl-btn tbl-btn-approve" onclick="Admin.approve(this,'Course')">Approve</button><button class="tbl-btn tbl-btn-reject" onclick="Admin.reject(this)">Reject</button></td></tr><tr><td class="td-main">Blockchain for Developers</td><td>Tunde E.</td><td>Tech</td><td>₦45,000</td><td>Mar 25</td><td class="tbl-actions"><button class="tbl-btn tbl-btn-approve" onclick="Admin.approve(this,'Course')">Approve</button><button class="tbl-btn tbl-btn-reject" onclick="Admin.reject(this)">Reject</button></td></tr></tbody></table></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="modalFaculty" onclick="e=>e.target===this&&UI.closeModal('modalFaculty')">
+  <div class="modal">
+    <div class="modal-header"><h3>Create Faculty</h3><button class="modal-close-btn" onclick="UI.closeModal('modalFaculty')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="field"><label>Faculty Name</label><input class="input" placeholder="e.g. Faculty of Engineering"></div>
+      <div class="field"><label>Faculty Code</label><input class="input" placeholder="e.g. ENG"></div>
+      <div class="field"><label>Dean / Head</label><input class="input" placeholder="Name of dean or head"></div>
+      <div class="field"><label>Description</label><textarea class="input" placeholder="Describe this faculty…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="UI.closeModal('modalFaculty')">Cancel</button>
+      <button class="btn btn-royal" onclick="School.createFaculty()">Create Faculty</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalCourse" onclick="e=>e.target===this&&UI.closeModal('modalCourse')">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header"><h3 id="modalCourseTitle">Course Preview</h3><button class="modal-close-btn" onclick="UI.closeModal('modalCourse')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body" id="modalCourseBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="UI.closeModal('modalCourse')">Close</button>
+      <button class="btn btn-royal" id="modalEnrollBtn" onclick="Marketplace.enroll()"><i class="fas fa-graduation-cap"></i> Enroll Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT — FULL PRODUCTION APP ENGINE
+═══════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════
+   STATE MANAGEMENT — SINGLE SOURCE OF TRUTH
+════════════════════════════════════════════════════ */
+const State = {
+  user: null,
+  courses: [],
+  enrolledCourses: [],
+  notifications: [],
+  unreadCount: 0,
+  currentPage: 'home',
+  currentTab: 'tab-overview',
+  sidebarOpen: false,
+
+  init() {
+    // Restore from localStorage
+    const saved = localStorage.getItem('dgei_state');
+    if (saved) {
+      try { Object.assign(this, JSON.parse(saved)); } catch(e) {}
+    }
+    this.notifications = MOCK.notifications;
+    this.unreadCount = this.notifications.filter(n => n.unread).length;
+    this.courses = MOCK.courses;
+  },
+
+  save() {
+    const { user, enrolledCourses, currentPage } = this;
+    localStorage.setItem('dgei_state', JSON.stringify({ user, enrolledCourses, currentPage }));
+  },
+
+  setUser(user) {
+    this.user = user;
+    this.save();
+    UI.renderUser();
+  },
+
+  enroll(courseId) {
+    if (!this.enrolledCourses.includes(courseId)) {
+      this.enrolledCourses.push(courseId);
+      this.save();
+    }
+  },
+
+  markAllRead() {
+    this.notifications.forEach(n => n.unread = false);
+    this.unreadCount = 0;
+    UI.renderNotifPip();
+    UI.renderNotifList();
+    Toast.show('success','Notifications','All notifications marked as read');
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   MOCK DATA
+════════════════════════════════════════════════════ */
+const MOCK = {
+  notifications: [
+    { id:1, unread:true, icon:'fa-user-plus', iconBg:'var(--emerald-dim)', iconColor:'var(--emerald)', title:'New enrollment!', text:'Amaka Okonkwo enrolled in Python Fundamentals.', time:'2 min ago' },
+    { id:2, unread:true, icon:'fa-check-circle', iconBg:'var(--royal-dim)', iconColor:'var(--royal-2)', title:'Course approved', text:'Data Science Basics is now live on the marketplace.', time:'1 hour ago' },
+    { id:3, unread:true, icon:'fa-university', iconBg:'var(--amber-dim)', iconColor:'var(--amber)', title:'School application', text:'Lagos Tech University is awaiting your review.', time:'3 hours ago' },
+    { id:4, unread:false, icon:'fa-certificate', iconBg:'var(--aqua-dim)', iconColor:'var(--aqua)', title:'Certificate ready', text:'Your Web Dev Bootcamp certificate is ready to download.', time:'Yesterday' },
+    { id:5, unread:false, icon:'fa-money-bill', iconBg:'var(--emerald-dim)', iconColor:'var(--emerald)', title:'Payment received', text:'₦45,000 from 3 course sales.', time:'2 days ago' },
+  ],
+  courses: [
+    { id:1, emoji:'🐍', title:'Python for Complete Beginners', cat:'Programming', catSlug:'programming', students:12400, hrs:24, lessons:40, rating:4.9, reviews:2341, price:15000, origPrice:25000, badge:'Bestseller', status:'live' },
+    { id:2, emoji:'🌐', title:'Full Stack Web Dev Bootcamp', cat:'Web Development', catSlug:'programming', students:9300, hrs:60, lessons:68, rating:4.8, reviews:2100, price:29000, origPrice:45000, badge:'Top Rated', status:'live' },
+    { id:3, emoji:'🎨', title:'UI/UX Design Masterclass', cat:'Design', catSlug:'design', students:8200, hrs:30, lessons:52, rating:4.8, reviews:1890, price:20000, origPrice:null, badge:null, status:'live' },
+    { id:4, emoji:'📊', title:'Intro to Data Analysis', cat:'Data Science', catSlug:'datascience', students:22000, hrs:8, lessons:24, rating:4.7, reviews:4200, price:0, origPrice:null, badge:'Free', status:'live' },
+    { id:5, emoji:'💼', title:'Entrepreneurship in Africa', cat:'Business', catSlug:'business', students:6100, hrs:20, lessons:36, rating:4.9, reviews:980, price:18000, origPrice:null, badge:null, status:'live' },
+    { id:6, emoji:'🤖', title:'Machine Learning with Python', cat:'AI & ML', catSlug:'datascience', students:4800, hrs:35, lessons:44, rating:4.6, reviews:1100, price:25000, origPrice:null, badge:null, status:'live' },
+  ],
+  activity: [
+    { icon:'fa-user-plus', bg:'var(--emerald-dim)', color:'var(--emerald)', text:'<strong>Amaka O.</strong> enrolled in Python Fundamentals', time:'2 min ago' },
+    { icon:'fa-star', bg:'var(--royal-dim)', color:'var(--royal-2)', text:'<strong>Chidi I.</strong> rated your course 5 stars', time:'18 min ago' },
+    { icon:'fa-money-bill', bg:'var(--amber-dim)', color:'var(--amber)', text:'<strong>Payment received</strong> — ₦15,000 from 2 sales', time:'45 min ago' },
+    { icon:'fa-graduation-cap', bg:'var(--aqua-dim)', color:'var(--aqua)', text:'<strong>Fatima A.</strong> completed Web Dev Bootcamp', time:'2 hrs ago' },
+    { icon:'fa-bell', bg:'var(--crimson-dim)', color:'var(--crimson)', text:'<strong>Course review</strong> pending for "ML Basics"', time:'4 hrs ago' },
+  ],
+  faculties: [
+    { name:'Faculty of Computing & Technology', emoji:'💻', color:'var(--royal-dim)', iconColor:'var(--royal-2)', count:'5 departments · 1,240 students', depts:['Computer Science','Cybersecurity','Data Engineering','Software Engineering','Networking'] },
+    { name:'Faculty of Business & Finance', emoji:'📊', color:'var(--aqua-dim)', iconColor:'var(--aqua)', count:'4 departments · 890 students', depts:['Business Administration','Finance & Fintech','Marketing','Accounting'] },
+    { name:'Faculty of Creative Arts & Design', emoji:'🎨', color:'var(--amber-dim)', iconColor:'var(--amber)', count:'3 departments · 620 students', depts:['UI/UX Design','Graphic Design','Motion & Film'] },
+  ],
+  certs: [
+    { emoji:'🏆', title:'Data Science Basics', date:'March 10, 2025', unlocked:true },
+    { emoji:'🎓', title:'HTML & CSS Mastery', date:'January 22, 2025', unlocked:true },
+    { emoji:'🔒', title:'Python for Beginners', date:null, unlocked:false, progress:78 },
+  ],
+  tableRows: [
+    ['Python for Beginners','2,341','4.9','₦702,300','live'],
+    ['Web Dev Bootcamp','1,890','4.8','₦567,000','live'],
+    ['Data Science Basics','1,102','4.7','₦330,600','live'],
+    ['Machine Learning','845','4.6','₦253,500','warning'],
+    ['UI/UX Design','610','4.8','₦183,000','info'],
+  ]
+};
+
+/* ════════════════════════════════════════════════════
+   HASH ROUTER
+════════════════════════════════════════════════════ */
+const Router = {
+  routes: ['home','login','register','forgot','otp','dashboard','school','builder','marketplace','settings','admin'],
+  appRoutes: ['dashboard','school','builder','marketplace','settings','admin'],
+
+  go(page) {
+    window.location.hash = '#/' + page;
+  },
+
+  resolve() {
+    const hash = window.location.hash || '#/home';
+    const page = hash.replace('#/','').split('?')[0] || 'home';
+    if (!this.routes.includes(page)) { this.go('home'); return; }
+
+    // Hide everything
+    document.querySelectorAll('.page,.app-page').forEach(p => p.classList.remove('active'));
+
+    // Show target
+    const el = document.getElementById('page-' + page);
+    if (el) { el.classList.add('active'); State.currentPage = page; }
+
+    // Lifecycle hooks
+    if (page === 'home') Lifecycle.onHome();
+    if (page === 'dashboard') Lifecycle.onDashboard();
+    if (page === 'school') Lifecycle.onSchool();
+    if (page === 'marketplace') Lifecycle.onMarketplace();
+
+    window.scrollTo(0,0);
+    UI.closeSidebar();
+  }
+};
+
+window.addEventListener('hashchange', () => Router.resolve());
+window.addEventListener('load', () => { State.init(); Router.resolve(); });
+
+/* ════════════════════════════════════════════════════
+   LIFECYCLE HOOKS
+════════════════════════════════════════════════════ */
+const Lifecycle = {
+  onHome() {
+    setTimeout(() => {
+      Counters.animate();
+      ScrollReveal.init();
+    }, 100);
+    // Navbar scroll
+    const nav = document.getElementById('lpNav');
+    window.onscroll = () => nav?.classList.toggle('sticked', window.scrollY > 60);
+  },
+  onDashboard() {
+    window.onscroll = null;
+    UI.renderUser();
+    UI.renderActivity();
+    UI.renderCoursesTable();
+    UI.renderMyCourses();
+    UI.renderCerts();
+    UI.renderNotifList();
+    UI.renderNotifPip();
+    Greet.set();
+    AutoSave.start();
+  },
+  onSchool() {
+    window.onscroll = null;
+    UI.renderFaculties();
+  },
+  onMarketplace() {
+    window.onscroll = null;
+    UI.renderMarketplace();
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   AUTH MODULE
+════════════════════════════════════════════════════ */
+const Auth = {
+  login() {
+    const email = document.getElementById('loginEmail')?.value.trim();
+    const pass = document.getElementById('loginPass')?.value;
+    // Validation
+    let ok = true;
+    if (!email || !email.includes('@')) {
+      document.getElementById('f-login-email')?.classList.add('has-error'); ok = false;
+    } else {
+      document.getElementById('f-login-email')?.classList.remove('has-error');
+    }
+    if (!pass) {
+      document.getElementById('f-login-pass')?.classList.add('has-error'); ok = false;
+    } else {
+      document.getElementById('f-login-pass')?.classList.remove('has-error');
+    }
+    if (!ok) return;
+
+    const btn = document.getElementById('loginBtn');
+    btn.innerHTML = '<span class="spinner"></span> Signing in…';
+    btn.classList.add('btn-loading');
+
+    setTimeout(() => {
+      State.setUser({ name:'Rock Okorie', email, role:'owner', initials:'RO' });
+      btn.innerHTML = 'Sign In';
+      btn.classList.remove('btn-loading');
+      Toast.show('success','Welcome back!','Redirecting to your dashboard…');
+      setTimeout(() => Router.go('dashboard'), 700);
+    }, 1600);
+  },
+
+  register() {
+    const role = document.getElementById('regRole')?.value;
+    if (!role) { Toast.show('error','Missing field','Please select your role.'); return; }
+    Toast.show('info','Creating account…','Please wait a moment.');
+    setTimeout(() => {
+      Toast.show('success','Account Created!','Check your email for OTP verification.');
+      setTimeout(() => Router.go('otp'), 800);
+    }, 1500);
+  },
+
+  sendOTP() {
+    Toast.show('success','OTP Sent','Check your inbox for the 6-digit code.');
+    setTimeout(() => Router.go('otp'), 800);
+  },
+
+  verifyOTP() {
+    const code = [0,1,2,3,4,5].map(i => document.getElementById('otp'+i)?.value).join('');
+    if (code.length < 6) { Toast.show('error','Incomplete','Please enter all 6 digits.'); return; }
+    Toast.show('success','Verified!','Your email has been confirmed. Welcome! 🎉');
+    setTimeout(() => Router.go('dashboard'), 900);
+  },
+
+  logout() {
+    State.user = null;
+    State.save();
+    Toast.show('info','Signed out','See you next time!');
+    setTimeout(() => Router.go('home'), 600);
+  },
+
+  togglePass(inputId, iconEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    const ico = iconEl.querySelector('i');
+    if (ico) ico.className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
+  },
+
+  otpNext(el, idx) {
+    el.value = el.value.replace(/\D/g,'');
+    if (el.value && idx < 5) document.getElementById('otp'+(idx+1))?.focus();
+  },
+
+  otpBack(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+      document.getElementById('otp'+(idx-1))?.focus();
+    }
+  },
+
+  _resendTimer: null,
+  resend() {
+    if (this._resendTimer) return;
+    let count = 30;
+    const btn = document.getElementById('resendBtn');
+    if (!btn) return;
+    btn.style.pointerEvents = 'none'; btn.style.color = 'var(--t3)';
+    btn.textContent = `Resend in ${count}s`;
+    this._resendTimer = setInterval(() => {
+      btn.textContent = `Resend in ${--count}s`;
+      if (count <= 0) {
+        clearInterval(this._resendTimer); this._resendTimer = null;
+        btn.textContent = 'Resend Code';
+        btn.style.pointerEvents = ''; btn.style.color = '';
+        Toast.show('success','OTP Sent','A new code has been sent!');
+      }
+    }, 1000);
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   UI MODULE
+════════════════════════════════════════════════════ */
+const UI = {
+  renderUser() {
+    const u = State.user || { name:'Rock Okorie', email:'rock@dgei.edu', role:'owner', initials:'RO' };
+    const initials = u.initials || u.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    ['sidebarAvatar','topAvatar'].forEach(id => { const el=document.getElementById(id); if(el)el.textContent=initials; });
+    const nameEls = ['sidebarName','ddName','topDdName'];
+    nameEls.forEach(id => { const el=document.getElementById(id); if(el)el.textContent=u.name; });
+    const emailEl = document.getElementById('ddEmail'); if(emailEl) emailEl.textContent = u.email||'';
+    const roleEl = document.getElementById('sidebarRole'); if(roleEl) roleEl.textContent = 'School Owner · Pro';
+    const badgeEl = document.getElementById('sidebarRoleBadge'); if(badgeEl) badgeEl.textContent = 'Pro';
+  },
+
+  renderActivity() {
+    const feed = document.getElementById('activityFeed');
+    if (!feed) return;
+    feed.innerHTML = MOCK.activity.map(a => `
+      <div class="feed-item">
+        <div class="feed-ic" style="background:${a.bg};color:${a.color};"><i class="fas ${a.icon}"></i></div>
+        <div class="feed-text"><p>${a.text}</p><div class="feed-time">${a.time}</div></div>
+      </div>`).join('');
+  },
+
+  renderCoursesTable() {
+    const table = document.getElementById('coursesTable');
+    if (!table) return;
+    const statusMap = { live:'badge-emerald', warning:'badge-amber', info:'badge-muted' };
+    const statusLabel = { live:'● Live', warning:'● Review', info:'● Draft' };
+    table.innerHTML = `<thead><tr><th>Course</th><th>Students</th><th>Rating</th><th>Revenue</th><th>Status</th></tr></thead>
+      <tbody>${MOCK.tableRows.map(r=>`<tr>
+        <td class="td-main">${r[0]}</td><td>${r[1]}</td>
+        <td><span style="color:var(--amber)">★</span> ${r[2]}</td>
+        <td>${r[3]}</td>
+        <td><span class="badge ${statusMap[r[4]]}">${statusLabel[r[4]]}</span></td>
+      </tr>`).join('')}</tbody>`;
+  },
+
+  renderMyCourses() {
+    const grid = document.getElementById('myCourseGrid');
+    if (!grid) return;
+    grid.innerHTML = State.courses.map(c => this._courseCard(c, true)).join('');
+  },
+
+  renderCerts() {
+    const grid = document.getElementById('certGrid');
+    if (!grid) return;
+    grid.innerHTML = MOCK.certs.map(c => c.unlocked ? `
+      <div class="card card-hover" style="padding:26px;text-align:center;">
+        <div style="width:68px;height:68px;background:linear-gradient(135deg,var(--royal),var(--aqua));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px;">${c.emoji}</div>
+        <h4 style="margin-bottom:6px;">${c.title}</h4>
+        <p style="font-size:13px;color:var(--t3);margin-bottom:18px;">Issued ${c.date}</p>
+        <button class="btn btn-royal" style="width:100%;" onclick="Toast.show('success','Download','Preparing your certificate…')"><i class="fas fa-download"></i> Download PDF</button>
+      </div>` : `
+      <div class="card" style="padding:26px;text-align:center;opacity:0.55;">
+        <div style="width:68px;height:68px;background:var(--ink-4);border:2px dashed var(--rim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px;">${c.emoji}</div>
+        <h4 style="margin-bottom:6px;">${c.title}</h4>
+        <p style="font-size:13px;color:var(--t3);margin-bottom:12px;">Complete course to unlock</p>
+        <div class="progress-track"><div class="progress-fill" style="width:${c.progress}%"></div></div>
+        <p style="font-size:12px;color:var(--t4);margin-top:7px;">${c.progress}% complete</p>
+      </div>`).join('');
+  },
+
+  renderMarketplace() {
+    const grid = document.getElementById('marketGrid');
+    if (!grid) return;
+    grid.innerHTML = State.courses.map(c => this._courseCard(c, false)).join('');
+  },
+
+  _courseCard(c, isMine) {
+    const priceHtml = c.price === 0
+      ? `<div class="course-price-tag" style="color:var(--emerald);">FREE</div>`
+      : `<div class="course-price-tag">${c.origPrice?`<span class="course-price-orig">₦${c.origPrice.toLocaleString()}</span>`:''}₦${c.price.toLocaleString()}</div>`;
+
+    const btnHtml = isMine
+      ? `<span class="badge ${c.status==='live'?'badge-emerald':c.status==='warning'?'badge-amber':'badge-muted'}">● ${c.status==='live'?'Live':c.status==='warning'?'Review':'Draft'}</span>`
+      : `<button class="btn btn-royal btn-sm" onclick="Marketplace.openCourse(${c.id})">Enroll</button>`;
+
+    return `
+      <div class="course-card card card-hover card-royal" onclick="${isMine?`Toast.show('info','Course','Opening editor…')`:`Marketplace.openCourse(${c.id})`}">
+        <div class="course-thumb">${c.emoji}${c.badge?`<div class="course-thumb-badge">${c.badge}</div>`:''}</div>
+        <div class="course-body">
+          <div class="course-cat">${c.cat}</div>
+          <div class="course-title-text">${c.title}</div>
+          <div class="course-meta-row"><span><i class="fas fa-users"></i>${c.students.toLocaleString()}</span><span><i class="fas fa-clock"></i>${c.hrs}hrs</span><span><i class="fas fa-layer-group"></i>${c.lessons} lessons</span></div>
+          ${isMine?`<div class="progress-track" style="margin-bottom:8px;"><div class="progress-fill" style="width:${Math.floor(50+Math.random()*40)}%"></div></div>`:`<div class="course-rating"><i class="fas fa-star"></i>${c.rating} (${c.reviews.toLocaleString()} reviews)</div>`}
+          <div class="course-foot">${priceHtml}${btnHtml}</div>
+        </div>
+      </div>`;
+  },
+
+  renderFaculties() {
+    const list = document.getElementById('facultyList');
+    if (!list) return;
+    list.innerHTML = MOCK.faculties.map((f,i) => `
+      <div class="faculty-block card">
+        <div class="faculty-hd" onclick="School.toggleFaculty(this)">
+          <div style="width:42px;height:42px;background:${f.color};border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${f.emoji}</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;">${f.name}</div><div style="font-size:12px;color:var(--t3);margin-top:2px;">${f.count}</div></div>
+          <i class="fas fa-chevron-down faculty-chevron"></i>
+        </div>
+        <div class="faculty-body">
+          ${f.depts.map(d=>`<div class="dept-row"><i class="fas fa-circle" style="color:${f.iconColor};font-size:8px;flex-shrink:0;"></i><div style="flex:1;font-size:14px;font-weight:600;">${d}</div><span class="badge badge-emerald">Active</span><button class="btn btn-ghost btn-sm" style="padding:4px 10px;" onclick="Toast.show('info','Dept','Editing department…')"><i class="fas fa-edit"></i></button></div>`).join('')}
+          <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:10px;" onclick="Toast.show('success','Dept','Add department form opening…')"><i class="fas fa-plus"></i> Add Department</button>
+        </div>
+      </div>`).join('');
+  },
+
+  renderNotifList() {
+    const list = document.getElementById('notifList');
+    if (!list) return;
+    list.innerHTML = State.notifications.map(n => `
+      <div class="notif-item ${n.unread?'unread':''}" onclick="State.readNotif(${n.id})">
+        <div style="display:flex;align-items:flex-start;gap:11px;">
+          <div class="notif-icon-wrap" style="background:${n.iconBg};color:${n.iconColor};"><i class="fas ${n.icon}"></i></div>
+          <div style="flex:1;">
+            <div class="notif-text"><strong>${n.title}</strong> ${n.text}</div>
+            <div class="notif-time">${n.time}</div>
+          </div>
+          ${n.unread?`<div style="width:7px;height:7px;border-radius:50%;background:var(--royal);flex-shrink:0;margin-top:5px;"></div>`:''}
+        </div>
+      </div>`).join('');
+  },
+
+  renderNotifPip() {
+    document.querySelectorAll('.notif-pip').forEach(pip => {
+      pip.style.display = State.unreadCount > 0 ? 'block' : 'none';
+    });
+  },
+
+  toggleSidebar() {
+    const sb = document.getElementById('appSidebar');
+    if (sb) { sb.classList.toggle('open'); State.sidebarOpen = sb.classList.contains('open'); }
+  },
+
+  toggleSidebarById(id) {
+    document.getElementById(id)?.classList.toggle('open');
+  },
+
+  closeSidebar() {
+    document.querySelectorAll('.sidebar.open').forEach(s => s.classList.remove('open'));
+  },
+
+  toggleDropdown(id) {
+    const isOpen = document.getElementById(id)?.classList.contains('open');
+    document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    if (!isOpen) document.getElementById(id)?.classList.add('open');
+  },
+
+  openDrawer() {
+    document.getElementById('notifDrawer')?.classList.add('open');
+    document.getElementById('drawerMask')?.classList.add('open');
+    UI.renderNotifList();
+  },
+
+  closeDrawer() {
+    document.getElementById('notifDrawer')?.classList.remove('open');
+    document.getElementById('drawerMask')?.classList.remove('open');
+  },
+
+  openModal(id) {
+    document.getElementById(id)?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  },
+
+  closeModal(id) {
+    document.getElementById(id)?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+};
+
+// Add readNotif
+State.readNotif = function(id) {
+  const n = this.notifications.find(x => x.id === id);
+  if (n) { n.unread = false; this.unreadCount = this.notifications.filter(x=>x.unread).length; }
+  UI.renderNotifList(); UI.renderNotifPip();
+};
+
+/* ════════════════════════════════════════════════════
+   APP MODULE (DASHBOARD)
+════════════════════════════════════════════════════ */
+const App = {
+  switchTab(btn) {
+    const tabId = btn.dataset.tab;
+    if (!tabId) return;
+    this.switchTabById(tabId);
+    // Update sidebar
+    btn.closest('.sidebar')?.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    btn.classList.add('active');
+    // Sync mobile nav
+    document.querySelectorAll('.bnav-item').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tabId);
+    });
+    if (window.innerWidth < 768) UI.closeSidebar();
+  },
+
+  switchTabById(tabId) {
+    document.querySelectorAll('#page-dashboard .ctab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId)?.classList.add('active');
+  },
+
+  mobileNav(btn) {
+    document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (btn.dataset.tab) this.switchTabById(btn.dataset.tab);
+  },
+
+  chartPeriod(btn, period) {
+    btn.closest('.tab-pills')?.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const svg = document.getElementById('enrollChart');
+    if (svg) { svg.style.opacity='0.4'; setTimeout(()=>{ svg.style.opacity='1'; svg.style.transition='opacity 0.4s'; },250); }
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   SCHOOL MODULE
+════════════════════════════════════════════════════ */
+const School = {
+  tab(btn) {
+    const tabId = btn.dataset.tab;
+    btn.closest('.sidebar')?.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#page-school .ctab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId)?.classList.add('active');
+    if (window.innerWidth < 768) UI.closeSidebar();
+  },
+
+  toggleFaculty(hd) {
+    const body = hd.nextElementSibling;
+    const chevron = hd.querySelector('.faculty-chevron');
+    body?.classList.toggle('open');
+    chevron?.classList.toggle('open');
+  },
+
+  createFaculty() {
+    UI.closeModal('modalFaculty');
+    Toast.show('success','Faculty Created','New faculty added to your school!');
+    UI.renderFaculties();
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   BUILDER MODULE
+════════════════════════════════════════════════════ */
+const Builder = {
+  _saveTimer: null,
+  _sections: 2,
+
+  autoSave() {
+    clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => Toast.show('info','Auto-saved','Draft saved automatically'), 2200);
+  },
+
+  saveDraft() {
+    Toast.show('info','Draft Saved','Your course draft has been saved.');
+  },
+
+  publish() {
+    Toast.show('success','Published! 🎉','Your course is now live on the marketplace.');
+    setTimeout(() => Router.go('dashboard'), 1200);
+  },
+
+  addSection() {
+    this._sections++;
+    const editor = document.getElementById('curriculumEditor');
+    if (!editor) return;
+    const div = document.createElement('div');
+    div.className = 'section-block';
+    div.style.marginBottom = '12px';
+    div.innerHTML = `
+      <div class="section-header-row">
+        <i class="drag-handle-icon fas fa-grip-vertical"></i>
+        <span style="font-weight:700;font-size:14px;flex:1;">Section ${this._sections}: New Section</span>
+        <span style="font-size:12px;color:var(--t3);margin-right:12px;">0 lessons</span>
+        <i class="fas fa-chevron-down" style="color:var(--t3);cursor:pointer;" onclick="Builder.toggleSection(this)"></i>
+      </div>
+      <div class="lesson-list" style="padding:8px 0 0 32px;">
+        <button class="btn btn-ghost btn-sm" style="color:var(--royal-2);" onclick="Toast.show('info','Lesson','Lesson editor opening…')"><i class="fas fa-plus"></i> Add First Lesson</button>
+      </div>`;
+    editor.appendChild(div);
+    Toast.show('success','Section Added','New section created.');
+  },
+
+  toggleSection(chevron) {
+    const list = chevron.closest('.section-header-row')?.nextElementSibling;
+    if (list) list.style.display = list.style.display === 'none' ? 'block' : 'none';
+  },
+
+  pricingType(sel) {
+    const field = document.getElementById('priceField');
+    if (field) field.style.display = sel.value === 'free' ? 'none' : 'block';
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   MARKETPLACE MODULE
+════════════════════════════════════════════════════ */
+const Marketplace = {
+  _currentCourse: null,
+  _cat: 'all',
+
+  search(q) {
+    const count = document.getElementById('courseCount');
+    if (count) count.textContent = q ? Math.floor(Math.random()*500+200).toLocaleString() : '2,840';
+  },
+
+  filter(btn) {
+    document.querySelectorAll('#categoryPills button').forEach(b => {
+      b.className = 'btn btn-ghost btn-sm';
+    });
+    btn.className = 'btn btn-royal btn-sm';
+    this._cat = btn.dataset.cat;
+    Toast.show('info','Filter Applied',`Showing ${btn.textContent.trim()} courses`);
+  },
+
+  openCourse(id) {
+    const c = State.courses.find(x => x.id === id);
+    if (!c) return;
+    this._currentCourse = c;
+    const title = document.getElementById('modalCourseTitle');
+    const body = document.getElementById('modalCourseBody');
+    const enrollBtn = document.getElementById('modalEnrollBtn');
+    if (title) title.textContent = c.title;
+    if (enrollBtn) enrollBtn.innerHTML = `<i class="fas fa-graduation-cap"></i> Enroll Now${c.price>0?' — ₦'+c.price.toLocaleString():''}`;
+    if (body) body.innerHTML = `
+      <div style="height:180px;background:linear-gradient(135deg,var(--ink-4),var(--royal-dim));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:18px;">${c.emoji}</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;">
+        <span class="badge badge-royal">Beginner</span>
+        <span class="badge badge-emerald">Certificate</span>
+        <span class="badge badge-aqua">${c.cat}</span>
+      </div>
+      <p style="color:var(--t2);font-size:14px;margin-bottom:18px;">Learn ${c.cat} from Africa's top educators with real-world projects and mentorship support.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+        <div style="text-align:center;padding:12px;background:var(--ink-4);border-radius:var(--radius-sm);"><div style="font-family:var(--f-display);font-size:20px;font-weight:700;">${c.hrs}h</div><div style="font-size:11px;color:var(--t3);">Content</div></div>
+        <div style="text-align:center;padding:12px;background:var(--ink-4);border-radius:var(--radius-sm);"><div style="font-family:var(--f-display);font-size:20px;font-weight:700;">${c.lessons}</div><div style="font-size:11px;color:var(--t3);">Lessons</div></div>
+        <div style="text-align:center;padding:12px;background:var(--ink-4);border-radius:var(--radius-sm);"><div style="font-family:var(--f-display);font-size:20px;font-weight:700;">${c.rating}★</div><div style="font-size:11px;color:var(--t3);">Rating</div></div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px;">
+        ${c.origPrice?`<span style="font-size:14px;color:var(--t3);text-decoration:line-through;">₦${c.origPrice.toLocaleString()}</span>`:''}
+        <span style="font-family:var(--f-display);font-size:28px;font-weight:700;color:${c.price===0?'var(--emerald)':'var(--t1)'};">${c.price===0?'FREE':'₦'+c.price.toLocaleString()}</span>
+      </div>`;
+    UI.openModal('modalCourse');
+  },
+
+  enroll() {
+    if (!this._currentCourse) return;
+    State.enroll(this._currentCourse.id);
+    UI.closeModal('modalCourse');
+    Toast.show('success','Enrolled! 🎉',`You're now enrolled in "${this._currentCourse.title}"`);
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   SETTINGS MODULE
+════════════════════════════════════════════════════ */
+const Settings = {
+  tab(btn, sectionId) {
+    document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.setting-section-content').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId)?.classList.add('active');
+  },
+  save() {
+    Toast.show('success','Settings Saved','Your preferences have been updated!');
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   ADMIN MODULE
+════════════════════════════════════════════════════ */
+const Admin = {
+  tab(btn) {
+    const tabId = btn.dataset.tab;
+    btn.closest('.sidebar')?.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#page-admin .ctab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId)?.classList.add('active');
+  },
+
+  approve(btn, type) {
+    const row = btn.closest('tr');
+    row?.remove();
+    Toast.show('success','Approved!',`${type} has been approved and is now live.`);
+  },
+
+  reject(btn) {
+    const row = btn.closest('tr');
+    row?.remove();
+    Toast.show('error','Rejected','Item has been rejected and the submitter notified.');
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   TOAST MODULE
+════════════════════════════════════════════════════ */
+const Toast = {
+  _map: { success:{ icon:'fa-check-circle' }, error:{ icon:'fa-times-circle' }, info:{ icon:'fa-info-circle' }, warning:{ icon:'fa-exclamation-triangle' } },
+
+  show(type='info', title='', msg='', duration=4000) {
+    const root = document.getElementById('toast-root');
+    if (!root) return;
+    const cfg = this._map[type] || this._map.info;
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `
+      <i class="fas ${cfg.icon} toast-icon"></i>
+      <div class="toast-body"><div class="toast-title">${title}</div>${msg?`<div class="toast-msg">${msg}</div>`:''}</div>
+      <button class="toast-close" onclick="Toast._remove(this.parentElement)"><i class="fas fa-times"></i></button>`;
+    root.appendChild(el);
+    setTimeout(() => this._remove(el), duration);
+  },
+
+  _remove(el) {
+    if (!el || el.classList.contains('out')) return;
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 300);
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   SEARCH MODULE
+════════════════════════════════════════════════════ */
+const Search = {
+  _timer: null,
+  query(q) {
+    clearTimeout(this._timer);
+    if (!q.trim()) return;
+    this._timer = setTimeout(() => {
+      // Live search placeholder
+    }, 300);
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   COUNTER ANIMATION
+════════════════════════════════════════════════════ */
+const Counters = {
+  animate() {
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const target = parseInt(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const dur = 2200;
+      const step = target / (dur / 16);
+      let cur = 0;
+      const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = Math.floor(cur).toLocaleString() + suffix;
+        if (cur >= target) clearInterval(t);
+      }, 16);
+    });
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════════════════════ */
+const ScrollReveal = {
+  _obs: null,
+  init() {
+    if (this._obs) this._obs.disconnect();
+    this._obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); this._obs.unobserve(e.target); } });
+    }, { threshold:0.12, rootMargin:'0 0 -40px 0' });
+    document.querySelectorAll('#page-home .reveal').forEach(el => {
+      el.classList.remove('visible');
+      this._obs.observe(el);
+    });
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   GREET
+════════════════════════════════════════════════════ */
+const Greet = {
+  set() {
+    const el = document.getElementById('dashGreeting');
+    if (!el) return;
+    const h = new Date().getHours();
+    const name = State.user?.name?.split(' ')[0] || 'Rock';
+    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    const emoji = h < 12 ? '☀️' : h < 17 ? '👋' : '🌙';
+    el.textContent = `${greet}, ${name} ${emoji}`;
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   AUTO SAVE
+════════════════════════════════════════════════════ */
+const AutoSave = {
+  _interval: null,
+  start() {
+    clearInterval(this._interval);
+    this._interval = setInterval(() => {
+      State.save();
+      // Silent save — no toast unless on builder
+      if (State.currentPage === 'builder') {
+        Toast.show('info','Auto-saved','Draft saved');
+      }
+    }, 30000); // every 30s
+  }
+};
+
+/* ════════════════════════════════════════════════════
+   API LAYER (MOCK)
+════════════════════════════════════════════════════ */
+const API = {
+  _base: '/api',
+
+  async _fetch(url, opts={}, retries=3) {
+    try {
+      const res = await fetch(url, { headers:{'Content-Type':'application/json'}, ...opts });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    } catch(err) {
+      if (retries > 0) {
+        await new Promise(r => setTimeout(r, 800));
+        return this._fetch(url, opts, retries-1);
+      }
+      throw err;
+    }
+  },
+
+  getCourses: () => Promise.resolve(MOCK.courses),
+  getUser: (id) => Promise.resolve(State.user),
+  enrollCourse: (id) => Promise.resolve({ success:true }),
+  createCourse: (data) => Promise.resolve({ id: Date.now(), ...data }),
+  createSchool: (data) => Promise.resolve({ id: Date.now(), ...data }),
+};
+
+/* ════════════════════════════════════════════════════
+   GLOBAL EVENT BINDINGS
+════════════════════════════════════════════════════ */
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  }
+  // Close sidebar on mobile backdrop click
+  if (!e.target.closest('.sidebar') && !e.target.closest('.topbar-hamburger')) {
+    if (window.innerWidth < 768) UI.closeSidebar();
+  }
+});
+
+// Close modals on backdrop click
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-backdrop')) {
+    UI.closeModal(e.target.id);
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-backdrop.open').forEach(m => { m.classList.remove('open'); document.body.style.overflow=''; });
+    document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+    UI.closeDrawer();
+  }
+  if ((e.ctrlKey||e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('globalSearch')?.focus();
+  }
+  if ((e.ctrlKey||e.metaKey) && e.key === 's') {
+    if (State.currentPage === 'builder') { e.preventDefault(); Builder.saveDraft(); }
+    if (State.currentPage === 'settings') { e.preventDefault(); Settings.save(); }
+  }
+});
+
+// Smooth scroll for landing anchors
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior:'smooth', block:'start' }); }
+  });
+});
+
+// Welcome toast
+setTimeout(() => {
+  if (State.currentPage === 'home') {
+    Toast.show('info','Welcome to DGEI 🌍','Africa\'s global education infrastructure is live!');
+  }
+}, 2200);
+</script>
+</body>
+</html>
